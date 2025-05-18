@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../core/constants/ui_constants.dart';
 import '../../core/theme/app_theme.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_text_field.dart';
+import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -26,7 +28,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _loginAsParent() {
+  void _loginAsParent() async {
     if (!_validateInputs()) return;
 
     setState(() {
@@ -34,20 +36,49 @@ class _LoginScreenState extends State<LoginScreen> {
       _isParentLoading = true;
     });
     
-    // TODO: Implement login logic
-    
-    // For now, simulate a login delay
-    Future.delayed(const Duration(seconds: 2), () {
-      setState(() {
-        _isLoading = false;
-        _isParentLoading = false;
-      });
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
       
-      Navigator.pushReplacementNamed(context, '/parent/dashboard');
-    });
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/parent/dashboard');
+      }
+    } on FirebaseAuthException catch (e) {
+      String errorMessage = 'An error occurred during login';
+      if (e.code == 'user-not-found') {
+        errorMessage = 'No user found with this email';
+      } else if (e.code == 'wrong-password') {
+        errorMessage = 'Wrong password provided';
+      } else if (e.code == 'invalid-email') {
+        errorMessage = 'Invalid email format';
+      }
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorMessage),
+          backgroundColor: AppTheme.accentColor2,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Login failed. Please try again.'),
+          backgroundColor: AppTheme.accentColor2,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _isParentLoading = false;
+        });
+      }
+    }
   }
 
-  void _loginAsTeacher() {
+  void _loginAsTeacher() async {
     if (!_validateInputs()) return;
 
     setState(() {
@@ -55,17 +86,46 @@ class _LoginScreenState extends State<LoginScreen> {
       _isTeacherLoading = true;
     });
     
-    // TODO: Implement login logic
-    
-    // For now, simulate a login delay
-    Future.delayed(const Duration(seconds: 2), () {
-      setState(() {
-        _isLoading = false;
-        _isTeacherLoading = false;
-      });
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
       
-      Navigator.pushReplacementNamed(context, '/teacher/dashboard');
-    });
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/teacher/dashboard');
+      }
+    } on FirebaseAuthException catch (e) {
+      String errorMessage = 'An error occurred during login';
+      if (e.code == 'user-not-found') {
+        errorMessage = 'No user found with this email';
+      } else if (e.code == 'wrong-password') {
+        errorMessage = 'Wrong password provided';
+      } else if (e.code == 'invalid-email') {
+        errorMessage = 'Invalid email format';
+      }
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorMessage),
+          backgroundColor: AppTheme.accentColor2,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Login failed. Please try again.'),
+          backgroundColor: AppTheme.accentColor2,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _isTeacherLoading = false;
+        });
+      }
+    }
   }
 
   bool _validateInputs() {
@@ -180,7 +240,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     TextButton(
                       onPressed: () {
-                        // TODO: Navigate to registration screen
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const RegisterScreen(),
+                          ),
+                        );
                       },
                       child: const Text('Register'),
                     ),
