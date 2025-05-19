@@ -41,29 +41,51 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     try {
       // Create user with email and password
-      final userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      final userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
-      
+
       // Update display name
       await userCredential.user?.updateDisplayName(_nameController.text.trim());
-      
+
       // Store user data in Firestore
-      await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userCredential.user!.uid)
+          .set({
         'name': _nameController.text.trim(),
         'email': _emailController.text.trim(),
         'role': _selectedRole,
         'createdAt': FieldValue.serverTimestamp(),
       });
-      
+
       if (mounted) {
         // Navigate to login or dashboard based on role
         Navigator.of(context).pop();
       }
     } on FirebaseAuthException catch (e) {
       setState(() {
-        _errorMessage = e.message ?? 'An error occurred during registration';
+        _isLoading = false;
+        
+        // Provide specific error messages for common Firebase Auth errors
+        switch (e.code) {
+          case 'email-already-in-use':
+            _errorMessage = 'An account already exists with this email address';
+            break;
+          case 'invalid-email':
+            _errorMessage = 'The email address is not valid';
+            break;
+          case 'weak-password':
+            _errorMessage = 'The password is too weak. Please use a stronger password';
+            break;
+          case 'operation-not-allowed':
+            _errorMessage = 'Email/password accounts are not enabled';
+            break;
+          default:
+            _errorMessage = e.message ?? 'An error occurred during registration';
+        }
       });
     } catch (e) {
       setState(() {
@@ -95,8 +117,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
               Text(
                 'Join Kiddos',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                      fontWeight: FontWeight.bold,
+                    ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 30),
@@ -224,4 +246,4 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
     );
   }
-} 
+}
