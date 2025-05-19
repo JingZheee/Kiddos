@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/constants/ui_constants.dart';
 import '../../core/theme/app_theme.dart';
 import '../../widgets/custom_button.dart';
@@ -38,12 +39,33 @@ class _LoginScreenState extends State<LoginScreen> {
     });
     
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      // Sign in with Firebase Auth
+      final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
       
       if (mounted) {
+        // Check user role in Firestore
+        final userDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userCredential.user!.uid)
+            .get();
+        
+        if (!userDoc.exists) {
+          throw Exception('User data not found');
+        }
+        
+        final userData = userDoc.data() as Map<String, dynamic>;
+        final userRole = userData['role'] as String?;
+        
+        if (userRole != 'parent') {
+          // Wrong role, sign out and show error
+          await FirebaseAuth.instance.signOut();
+          throw Exception('This account is not registered as a parent');
+        }
+        
+        // Correct role, navigate to parent dashboard
         Navigator.pushReplacementNamed(context, '/parent/dashboard');
       }
     } on FirebaseAuthException catch (e) {
@@ -64,8 +86,8 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Login failed. Please try again.'),
+        SnackBar(
+          content: Text(e is Exception ? e.toString().replaceAll('Exception: ', '') : 'Login failed. Please try again.'),
           backgroundColor: AppTheme.accentColor2,
         ),
       );
@@ -88,12 +110,33 @@ class _LoginScreenState extends State<LoginScreen> {
     });
     
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      // Sign in with Firebase Auth
+      final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
       
       if (mounted) {
+        // Check user role in Firestore
+        final userDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userCredential.user!.uid)
+            .get();
+        
+        if (!userDoc.exists) {
+          throw Exception('User data not found');
+        }
+        
+        final userData = userDoc.data() as Map<String, dynamic>;
+        final userRole = userData['role'] as String?;
+        
+        if (userRole != 'teacher') {
+          // Wrong role, sign out and show error
+          await FirebaseAuth.instance.signOut();
+          throw Exception('This account is not registered as a teacher');
+        }
+        
+        // Correct role, navigate to teacher dashboard
         Navigator.pushReplacementNamed(context, '/teacher/dashboard');
       }
     } on FirebaseAuthException catch (e) {
@@ -114,8 +157,8 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Login failed. Please try again.'),
+        SnackBar(
+          content: Text(e is Exception ? e.toString().replaceAll('Exception: ', '') : 'Login failed. Please try again.'),
           backgroundColor: AppTheme.accentColor2,
         ),
       );
