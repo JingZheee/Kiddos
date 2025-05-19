@@ -7,6 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/login_screen.dart';
 import 'features/auth/register_screen.dart';
+import 'features/auth/forgot_password_screen.dart';
 import 'features/parent/parent_dashboard_screen.dart';
 import 'features/teacher/teacher_dashboard_screen.dart';
 
@@ -34,6 +35,7 @@ class NurseryApp extends StatelessWidget {
       routes: {
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
+        '/forgot-password': (context) => const ForgotPasswordScreen(),
         '/parent/dashboard': (context) => const ParentDashboardScreen(),
         '/teacher/dashboard': (context) => const TeacherDashboardScreen(),
       },
