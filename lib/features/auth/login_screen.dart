@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/constants/ui_constants.dart';
 import '../../core/theme/app_theme.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_text_field.dart';
+import 'register_screen.dart';
+import 'forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -26,7 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _loginAsParent() {
+  void _loginAsParent() async {
     if (!_validateInputs()) return;
 
     setState(() {
@@ -34,20 +38,70 @@ class _LoginScreenState extends State<LoginScreen> {
       _isParentLoading = true;
     });
     
-    // TODO: Implement login logic
-    
-    // For now, simulate a login delay
-    Future.delayed(const Duration(seconds: 2), () {
-      setState(() {
-        _isLoading = false;
-        _isParentLoading = false;
-      });
+    try {
+      // Sign in with Firebase Auth
+      final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
       
-      Navigator.pushReplacementNamed(context, '/parent/dashboard');
-    });
+      if (mounted) {
+        // Check user role in Firestore
+        final userDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userCredential.user!.uid)
+            .get();
+        
+        if (!userDoc.exists) {
+          throw Exception('User data not found');
+        }
+        
+        final userData = userDoc.data() as Map<String, dynamic>;
+        final userRole = userData['role'] as String?;
+        
+        if (userRole != 'parent') {
+          // Wrong role, sign out and show error
+          await FirebaseAuth.instance.signOut();
+          throw Exception('This account is not registered as a parent');
+        }
+        
+        // Correct role, navigate to parent dashboard
+        Navigator.pushReplacementNamed(context, '/parent/dashboard');
+      }
+    } on FirebaseAuthException catch (e) {
+      String errorMessage = 'An error occurred during login';
+      if (e.code == 'user-not-found') {
+        errorMessage = 'No user found with this email';
+      } else if (e.code == 'wrong-password') {
+        errorMessage = 'Wrong password provided';
+      } else if (e.code == 'invalid-email') {
+        errorMessage = 'Invalid email format';
+      }
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorMessage),
+          backgroundColor: AppTheme.accentColor2,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e is Exception ? e.toString().replaceAll('Exception: ', '') : 'Login failed. Please try again.'),
+          backgroundColor: AppTheme.accentColor2,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _isParentLoading = false;
+        });
+      }
+    }
   }
 
-  void _loginAsTeacher() {
+  void _loginAsTeacher() async {
     if (!_validateInputs()) return;
 
     setState(() {
@@ -55,17 +109,67 @@ class _LoginScreenState extends State<LoginScreen> {
       _isTeacherLoading = true;
     });
     
-    // TODO: Implement login logic
-    
-    // For now, simulate a login delay
-    Future.delayed(const Duration(seconds: 2), () {
-      setState(() {
-        _isLoading = false;
-        _isTeacherLoading = false;
-      });
+    try {
+      // Sign in with Firebase Auth
+      final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
       
-      Navigator.pushReplacementNamed(context, '/teacher/dashboard');
-    });
+      if (mounted) {
+        // Check user role in Firestore
+        final userDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userCredential.user!.uid)
+            .get();
+        
+        if (!userDoc.exists) {
+          throw Exception('User data not found');
+        }
+        
+        final userData = userDoc.data() as Map<String, dynamic>;
+        final userRole = userData['role'] as String?;
+        
+        if (userRole != 'teacher') {
+          // Wrong role, sign out and show error
+          await FirebaseAuth.instance.signOut();
+          throw Exception('This account is not registered as a teacher');
+        }
+        
+        // Correct role, navigate to teacher dashboard
+        Navigator.pushReplacementNamed(context, '/teacher/dashboard');
+      }
+    } on FirebaseAuthException catch (e) {
+      String errorMessage = 'An error occurred during login';
+      if (e.code == 'user-not-found') {
+        errorMessage = 'No user found with this email';
+      } else if (e.code == 'wrong-password') {
+        errorMessage = 'Wrong password provided';
+      } else if (e.code == 'invalid-email') {
+        errorMessage = 'Invalid email format';
+      }
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorMessage),
+          backgroundColor: AppTheme.accentColor2,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e is Exception ? e.toString().replaceAll('Exception: ', '') : 'Login failed. Please try again.'),
+          backgroundColor: AppTheme.accentColor2,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _isTeacherLoading = false;
+        });
+      }
+    }
   }
 
   bool _validateInputs() {
@@ -166,7 +270,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: UIConstants.spacing16),
                 TextButton(
                   onPressed: () {
-                    // TODO: Navigate to forgot password
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ForgotPasswordScreen(),
+                      ),
+                    );
                   },
                   child: const Text('Forgot Password?'),
                 ),
@@ -180,7 +289,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     TextButton(
                       onPressed: () {
-                        // TODO: Navigate to registration screen
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const RegisterScreen(),
+                          ),
+                        );
                       },
                       child: const Text('Register'),
                     ),

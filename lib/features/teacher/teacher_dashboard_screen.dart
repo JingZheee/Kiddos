@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../core/constants/ui_constants.dart';
 import '../../core/theme/app_theme.dart';
 import '../../widgets/custom_app_bar.dart';
@@ -14,6 +15,22 @@ class TeacherDashboardScreen extends StatefulWidget {
 class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
   int _selectedIndex = 0;
 
+  void _signOut() async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/login');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Error signing out. Please try again.'),
+          backgroundColor: AppTheme.accentColor2,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,10 +45,8 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.settings_outlined),
-            onPressed: () {
-              // TODO: Navigate to settings
-            },
+            icon: const Icon(Icons.logout),
+            onPressed: _signOut,
           ),
         ],
       ),
