@@ -9,6 +9,14 @@ class Timestamps {
     this.deletedAt,
   });
 
+  factory Timestamps.now() {
+    final now = DateTime.now();
+    return Timestamps(
+      createdAt: now,
+      updatedAt: now,
+    );
+  }
+
   factory Timestamps.fromJson(Map<String, dynamic> json) {
     return Timestamps(
       createdAt: DateTime.parse(json['created_at']),
@@ -25,4 +33,29 @@ class Timestamps {
         if (deletedAt != null)
           'deleted_at': deletedAt!.toIso8601String(),
       };
+
+  Timestamps copyWith({
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    DateTime? deletedAt,
+  }) {
+    return Timestamps(
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+    );
+  }
+
+  Timestamps markAsDeleted() {
+    return copyWith(
+      deletedAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+  }
+
+  Timestamps update() {
+    return copyWith(
+      updatedAt: DateTime.now(),
+    );
+  }
 }
