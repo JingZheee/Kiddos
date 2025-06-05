@@ -19,19 +19,19 @@ class Timestamps {
 
   factory Timestamps.fromJson(Map<String, dynamic> json) {
     return Timestamps(
-      createdAt: DateTime.parse(json['created_at']),
-      updatedAt: DateTime.parse(json['updated_at']),
-      deletedAt: json['deleted_at'] != null
-          ? DateTime.tryParse(json['deleted_at'])
+      createdAt: DateTime.parse(json['createdAt']),
+      updatedAt: DateTime.parse(json['updatedAt']),
+      deletedAt: json['deletedAt'] != null
+          ? DateTime.tryParse(json['deletedAt'])
           : null,
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'created_at': createdAt.toIso8601String(),
-        'updated_at': updatedAt.toIso8601String(),
+        'createdAt': createdAt.toIso8601String(),
+        'updatedAt': updatedAt.toIso8601String(),
         if (deletedAt != null)
-          'deleted_at': deletedAt!.toIso8601String(),
+          'deletedAt': deletedAt!.toIso8601String(),
       };
 
   Timestamps copyWith({

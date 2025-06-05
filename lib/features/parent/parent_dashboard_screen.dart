@@ -199,7 +199,14 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
           icon: Icons.note_alt_outlined,
           label: 'Absence Note',
           onTap: () {
-            // TODO: Create absence note
+            // TODO: Report absence
+          },
+        ),
+        QuickActionButton(
+          icon: Icons.admin_panel_settings_outlined,
+          label: 'Test Roles',
+          onTap: () {
+            Navigator.pushNamed(context, '/example/user-roles');
           },
         ),
         QuickActionButton(

@@ -1,4 +1,5 @@
 import 'package:nursery_app/models/timestamp/timestamp_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 enum RoleType {
   parent,
@@ -7,7 +8,7 @@ enum RoleType {
 }
 
 class UserRole {
-  final int id;
+  final String id;
   final String roleName;
   final Timestamps timestamps;
 
@@ -34,7 +35,7 @@ class UserRole {
   RoleType get type => nameToRoleType(roleName);
 
   // Create a UserRole from a RoleType
-  static UserRole fromRoleType(RoleType type, {required int id, required Timestamps timestamps}) {
+  static UserRole fromRoleType(RoleType type, {required String id, required Timestamps timestamps}) {
     return UserRole(
       id: id,
       roleName: roleTypeToName(type),
@@ -45,21 +46,44 @@ class UserRole {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'role_name': roleName,
+      'roleName': roleName,
       'timestamps': timestamps.toJson(),
     };
   }
 
   factory UserRole.fromMap(Map<String, dynamic> map) {
+    // Handle different field name formats (Firebase vs local storage)
+    final id = map['id'] as String;
+    final roleName = map['roleName'] ?? map['role_name'] as String;
+    
+    // Handle timestamps - either as a timestamps object or separate createdAt/updatedAt fields
+    Timestamps timestamps;
+    if (map['timestamps'] != null) {
+      // Standard format
+      timestamps = Timestamps.fromJson(map['timestamps']);
+    } else if (map['createdAt'] != null && map['updatedAt'] != null) {
+      // Firebase format with separate timestamp fields
+      final createdAt = map['createdAt'];
+      final updatedAt = map['updatedAt'];
+      
+      timestamps = Timestamps(
+        createdAt: createdAt is Timestamp ? createdAt.toDate() : DateTime.parse(createdAt),
+        updatedAt: updatedAt is Timestamp ? updatedAt.toDate() : DateTime.parse(updatedAt),
+      );
+    } else {
+      // Fallback to current time
+      timestamps = Timestamps.now();
+    }
+    
     return UserRole(
-      id: map['id'],
-      roleName: map['role_name'],
-      timestamps: Timestamps.fromJson(map['timestamps']),
+      id: id,
+      roleName: roleName,
+      timestamps: timestamps,
     );
   }
 
   UserRole copyWith({
-    int? id,
+    String? id,
     String? roleName,
     Timestamps? timestamps,
   }) {

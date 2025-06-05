@@ -5,11 +5,13 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'core/theme/app_theme.dart';
+import 'core/providers/user_role_provider.dart';
 import 'features/auth/login_screen.dart';
 import 'features/auth/register_screen.dart';
 import 'features/auth/forgot_password_screen.dart';
 import 'features/parent/parent_dashboard_screen.dart';
 import 'features/teacher/teacher_dashboard_screen.dart';
+import 'examples/user_role_usage_example.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,17 +29,92 @@ class NurseryApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Kiddos',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme(),
-      home: const AuthenticationWrapper(),
-      routes: {
-        '/login': (context) => const LoginScreen(),
-        '/register': (context) => const RegisterScreen(),
-        '/forgot-password': (context) => const ForgotPasswordScreen(),
-        '/parent/dashboard': (context) => const ParentDashboardScreen(),
-        '/teacher/dashboard': (context) => const TeacherDashboardScreen(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => UserRoleProvider()),
+      ],
+      child: MaterialApp(
+        title: 'Kiddos',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme(),
+        home: const AppInitializer(),
+        routes: {
+          '/login': (context) => const LoginScreen(),
+          '/register': (context) => const RegisterScreen(),
+          '/forgot-password': (context) => const ForgotPasswordScreen(),
+          '/parent/dashboard': (context) => const ParentDashboardScreen(),
+          '/teacher/dashboard': (context) => const TeacherDashboardScreen(),
+          '/example/user-roles': (context) => const UserRoleExampleScreen(),
+        },
+      ),
+    );
+  }
+}
+
+class AppInitializer extends StatefulWidget {
+  const AppInitializer({super.key});
+
+  @override
+  State<AppInitializer> createState() => _AppInitializerState();
+}
+
+class _AppInitializerState extends State<AppInitializer> {
+  @override
+  void initState() {
+    super.initState();
+    _initializeApp();
+  }
+
+  Future<void> _initializeApp() async {
+    // Initialize user roles from Firebase/cache
+    final userRoleProvider = context.read<UserRoleProvider>();
+    await userRoleProvider.initializeRoles();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<UserRoleProvider>(
+      builder: (context, userRoleProvider, child) {
+        if (userRoleProvider.isLoading && !userRoleProvider.isInitialized) {
+          return const Scaffold(
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('Loading app data...'),
+                ],
+              ),
+            ),
+          );
+        }
+        
+        if (userRoleProvider.hasError && !userRoleProvider.isInitialized) {
+          return Scaffold(
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Failed to initialize app:\n${userRoleProvider.errorMessage}',
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: _initializeApp,
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+        
+        // App is initialized, proceed to authentication
+        return const AuthenticationWrapper();
       },
     );
   }
