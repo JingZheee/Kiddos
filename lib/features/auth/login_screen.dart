@@ -3,10 +3,9 @@ import 'package:provider/provider.dart';
 import '../../core/constants/ui_constants.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/providers/user_provider.dart';
+import '../../core/routing/app_navigation.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_text_field.dart';
-import 'register_screen.dart';
-import 'forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -145,12 +144,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: UIConstants.spacing16),
                 TextButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ForgotPasswordScreen(),
-                      ),
-                    );
+                    AppNavigation.pushForgotPassword(context);
                   },
                   child: const Text('Forgot Password?'),
                 ),
@@ -164,12 +158,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     TextButton(
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const RegisterScreen(),
-                          ),
-                        );
+                        AppNavigation.pushRegister(context);
                       },
                       child: const Text('Register'),
                     ),

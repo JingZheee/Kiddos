@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:nursery_app/core/providers/user_provider.dart';
 import 'package:nursery_app/core/providers/user_role_provider.dart';
+import 'package:nursery_app/core/routing/app_navigation.dart';
 import 'package:nursery_app/models/user/user_role_model.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -69,7 +70,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (mounted) {
       if (result.isSuccess) {
         // Navigate back to login screen
-        Navigator.of(context).pop();
+        AppNavigation.goToLogin(context);
       } else {
         setState(() {
           _errorMessage = result.errorMessage;
@@ -240,7 +241,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               const SizedBox(height: 16),
               TextButton(
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () => AppNavigation.goToLogin(context),
                 child: const Text('Already have an account? Sign In'),
               ),
                 ],
