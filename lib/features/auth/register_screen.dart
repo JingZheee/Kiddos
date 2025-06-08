@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:nursery_app/core/services/auth_services.dart';
+import 'package:nursery_app/core/providers/user_provider.dart';
 import 'package:nursery_app/core/providers/user_role_provider.dart';
 import 'package:nursery_app/models/user/user_role_model.dart';
 
@@ -17,7 +17,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _nameController = TextEditingController();
-  bool _isLoading = false;
   String? _errorMessage;
   String? _selectedRoleId; // Selected role ID
 
@@ -48,19 +47,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
 
     setState(() {
-      _isLoading = true;
       _errorMessage = null;
     });
 
     if (_selectedRoleId == null) {
       setState(() {
-        _isLoading = false;
         _errorMessage = 'Please select a role';
       });
       return;
     }
 
-    final result = await AuthService.registerUser(
+    final userProvider = context.read<UserProvider>();
+    
+    final result = await userProvider.registerUser(
       email: _emailController.text,
       password: _passwordController.text,
       name: _nameController.text,
@@ -68,15 +67,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
 
     if (mounted) {
-      setState(() {
-        _isLoading = false;
-        if (result.isSuccess) {
-          // Navigate back to login screen
-          Navigator.of(context).pop();
-        } else {
+      if (result.isSuccess) {
+        // Navigate back to login screen
+        Navigator.of(context).pop();
+      } else {
+        setState(() {
           _errorMessage = result.errorMessage;
-        }
-      });
+        });
+      }
     }
   }
 
@@ -88,11 +86,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
+        child: Consumer<UserProvider>(
+          builder: (context, userProvider, child) {
+            return Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
               const SizedBox(height: 20),
               Text(
                 'Join Kiddos',
@@ -203,7 +203,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     items: roleProvider.roles.map((UserRole role) {
                       return DropdownMenuItem<String>(
                         value: role.id,
-                        child: Text(role.roleName.toUpperCase()),
+                        child: Text(role.roleName),
                       );
                     }).toList(),
                     onChanged: (String? value) {
@@ -230,11 +230,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ],
               const SizedBox(height: 24),
               ElevatedButton(
-                onPressed: _isLoading ? null : _register,
+                onPressed: userProvider.isLoading ? null : _register,
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
-                child: _isLoading
+                child: userProvider.isLoading
                     ? const CircularProgressIndicator()
                     : const Text('Register'),
               ),
@@ -243,8 +243,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 onPressed: () => Navigator.of(context).pop(),
                 child: const Text('Already have an account? Sign In'),
               ),
-            ],
-          ),
+                ],
+              ),
+            );
+          },
         ),
       ),
     );

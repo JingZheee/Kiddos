@@ -9,6 +9,16 @@ class AuthService {
   // Get current user
   static User? get currentUser => _auth.currentUser;
 
+  // Check if user is logged in
+  static bool get isLoggedIn => _auth.currentUser != null;
+
+  // Get current user ID
+  static String? get currentUserId => _auth.currentUser?.uid;
+
+  // Get current user email
+  static String? get currentUserEmail => _auth.currentUser?.email;
+  
+
   // Register new user
   static Future<AuthResult> registerUser({
     required String email,
@@ -56,67 +66,8 @@ class AuthService {
     }
   }
 
-  // Login user with role validation
-  static Future<AuthResult> loginUserWithRole({
-    required String email,
-    required String password,
-    required String expectedRole,
-  }) async {
-    try {
-      // Sign in with Firebase Auth
-      final userCredential = await _auth.signInWithEmailAndPassword(
-        email: email.trim(),
-        password: password,
-      );
-
-      // Check user role in Firestore
-      final userDoc = await _firestore
-          .collection('users')
-          .doc(userCredential.user!.uid)
-          .get();
-
-      if (!userDoc.exists) {
-        await _auth.signOut();
-        return AuthResult.failure('User data not found');
-      }
-
-      final userData = userDoc.data() as Map<String, dynamic>;
-      
-      // Check if this is the old format (role string) or new format (roleId)
-      final roleData = userData['role'] ?? userData['roleId'];
-      
-      if (roleData == null) {
-        await _auth.signOut();
-        return AuthResult.failure('User role not found');
-      }
-      
-      // Handle both old format (role string) and new format (roleId)
-      bool isExpectedRole;
-      if (roleData is String) {
-        // Old format: direct role string comparison
-        isExpectedRole = roleData == expectedRole;
-      } else {
-        // New format: roleId comparison
-        // We'll need to check this against the role provider or make this method more flexible
-        // For now, we'll assume the expectedRole is passed as roleId for the new format
-        isExpectedRole = roleData.toString() == expectedRole;
-      }
-
-      if (!isExpectedRole) {
-        // Wrong role, sign out and show error
-        await _auth.signOut();
-        return AuthResult.failure('This account is not registered as a $expectedRole');
-      }
-
-      return AuthResult.success();
-    } on FirebaseAuthException catch (e) {
-      return AuthResult.failure(_getAuthErrorMessage(e));
-    } catch (e) {
-      return AuthResult.failure('An unexpected error occurred during login');
-    }
-  }
-
-  // Login user (general login without role validation)
+  // Simple login - just authenticate with Firebase Auth
+  // UserProvider will handle data loading via auth state listener
   static Future<AuthResult> loginUser({
     required String email,
     required String password,

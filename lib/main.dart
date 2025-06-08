@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'core/theme/app_theme.dart';
 import 'core/providers/user_role_provider.dart';
+import 'core/providers/user_provider.dart';
 import 'features/auth/login_screen.dart';
 import 'features/auth/register_screen.dart';
 import 'features/auth/forgot_password_screen.dart';
@@ -32,6 +31,11 @@ class NurseryApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => UserRoleProvider()),
+        ChangeNotifierProxyProvider<UserRoleProvider, UserProvider>(
+          create: (context) => UserProvider(context.read<UserRoleProvider>()),
+          update: (_, userRoleProvider, userProvider) => 
+              userProvider ?? UserProvider(userRoleProvider),
+        ),
       ],
       child: MaterialApp(
         title: 'Kiddos',
@@ -125,51 +129,46 @@ class AuthenticationWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.active) {
-          User? user = snapshot.data;
-          if (user != null) {
-            // User is signed in, check user role from Firestore
-            return FutureBuilder<DocumentSnapshot>(
-              future: FirebaseFirestore.instance.collection('users').doc(user.uid).get(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
-                  if (snapshot.hasData && snapshot.data!.exists) {
-                    final userData = snapshot.data!.data() as Map<String, dynamic>;
-                    final userRole = userData['role'] as String?;
-                    
-                    if (userRole == 'teacher') {
-                      return const TeacherDashboardScreen();
-                    } else {
-                      // Default to parent dashboard
-                      return const ParentDashboardScreen();
-                    }
-                  }
-                  
-                  // No user data found, redirect to login
-                  return const LoginScreen();
-                }
-                
-                // While waiting for Firestore
-                return const Scaffold(
-                  body: Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                );
-              },
-            );
+    return Consumer2<UserProvider, UserRoleProvider>(
+      builder: (context, userProvider, userRoleProvider, child) {
+        // Show loading screen while initializing
+        if (!userProvider.isInitialized) {
+          return const Scaffold(
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('Initializing...'),
+                ],
+              ),
+            ),
+          );
+        }
+        
+        // User is authenticated, route based on role
+        if (userProvider.isAuthenticated) {
+          final userModel = userProvider.userModel;
+          
+          if (userModel != null) {
+            // Route based on role type using the user model's built-in getters
+            if (userModel.isParent) {
+              return const ParentDashboardScreen();
+            } else if (userModel.isTeacher) {
+              return const TeacherDashboardScreen();
+            } else if (userModel.isAdmin) {
+              // Add admin dashboard when you create it
+              return const TeacherDashboardScreen(); // Temporary fallback
+            }
           }
+          
+          // User data not complete, redirect to login
           return const LoginScreen();
         }
         
-        // While waiting for connection to be established
-        return const Scaffold(
-          body: Center(
-            child: CircularProgressIndicator(),
-          ),
-        );
+        // User not authenticated
+        return const LoginScreen();
       },
     );
   }

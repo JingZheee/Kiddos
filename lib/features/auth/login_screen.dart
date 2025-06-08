@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
 import '../../core/constants/ui_constants.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/providers/user_provider.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_text_field.dart';
 import 'register_screen.dart';
@@ -18,10 +18,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  bool _isLoading = false;
   bool _isPasswordVisible = false;
-  bool _isParentLoading = false;
-  bool _isTeacherLoading = false;
 
   @override
   void dispose() {
@@ -30,145 +27,27 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _loginAsParent() async {
+  void _login() async {
     if (!_validateInputs()) return;
 
-    setState(() {
-      _isLoading = true;
-      _isParentLoading = true;
-    });
+    final userProvider = context.read<UserProvider>();
     
-    try {
-      // Sign in with Firebase Auth
-      final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text,
-      );
-      
-      if (mounted) {
-        // Check user role in Firestore
-        final userDoc = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(userCredential.user!.uid)
-            .get();
-        
-        if (!userDoc.exists) {
-          throw Exception('User data not found');
-        }
-        
-        final userData = userDoc.data() as Map<String, dynamic>;
-        final userRole = userData['role'] as String?;
-        
-        if (userRole != 'parent') {
-          // Wrong role, sign out and show error
-          await FirebaseAuth.instance.signOut();
-          throw Exception('This account is not registered as a parent');
-        }
-        
-        // Correct role, navigate to parent dashboard
-        Navigator.pushReplacementNamed(context, '/parent/dashboard');
-      }
-    } on FirebaseAuthException catch (e) {
-      String errorMessage = 'An error occurred during login';
-      if (e.code == 'user-not-found') {
-        errorMessage = 'No user found with this email';
-      } else if (e.code == 'wrong-password') {
-        errorMessage = 'Wrong password provided';
-      } else if (e.code == 'invalid-email') {
-        errorMessage = 'Invalid email format';
-      }
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(errorMessage),
-          backgroundColor: AppTheme.accentColor2,
-        ),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e is Exception ? e.toString().replaceAll('Exception: ', '') : 'Login failed. Please try again.'),
-          backgroundColor: AppTheme.accentColor2,
-        ),
-      );
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-          _isParentLoading = false;
-        });
-      }
-    }
-  }
+    final result = await userProvider.loginUser(
+      email: _emailController.text,
+      password: _passwordController.text,
+    );
 
-  void _loginAsTeacher() async {
-    if (!_validateInputs()) return;
-
-    setState(() {
-      _isLoading = true;
-      _isTeacherLoading = true;
-    });
-    
-    try {
-      // Sign in with Firebase Auth
-      final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text,
-      );
-      
-      if (mounted) {
-        // Check user role in Firestore
-        final userDoc = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(userCredential.user!.uid)
-            .get();
-        
-        if (!userDoc.exists) {
-          throw Exception('User data not found');
-        }
-        
-        final userData = userDoc.data() as Map<String, dynamic>;
-        final userRole = userData['role'] as String?;
-        
-        if (userRole != 'teacher') {
-          // Wrong role, sign out and show error
-          await FirebaseAuth.instance.signOut();
-          throw Exception('This account is not registered as a teacher');
-        }
-        
-        // Correct role, navigate to teacher dashboard
-        Navigator.pushReplacementNamed(context, '/teacher/dashboard');
+    if (mounted) {
+      if (!result.isSuccess) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result.errorMessage ?? 'Login failed. Please try again.'),
+            backgroundColor: AppTheme.accentColor2,
+          ),
+        );
       }
-    } on FirebaseAuthException catch (e) {
-      String errorMessage = 'An error occurred during login';
-      if (e.code == 'user-not-found') {
-        errorMessage = 'No user found with this email';
-      } else if (e.code == 'wrong-password') {
-        errorMessage = 'Wrong password provided';
-      } else if (e.code == 'invalid-email') {
-        errorMessage = 'Invalid email format';
-      }
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(errorMessage),
-          backgroundColor: AppTheme.accentColor2,
-        ),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e is Exception ? e.toString().replaceAll('Exception: ', '') : 'Login failed. Please try again.'),
-          backgroundColor: AppTheme.accentColor2,
-        ),
-      );
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-          _isTeacherLoading = false;
-        });
-      }
+      // No need to handle success case - the UserProvider will automatically
+      // trigger navigation through the AuthenticationWrapper
     }
   }
 
@@ -193,10 +72,12 @@ class _LoginScreenState extends State<LoginScreen> {
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(UIConstants.spacing24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
+            child: Consumer<UserProvider>(
+              builder: (context, userProvider, child) {
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
                 const SizedBox(height: UIConstants.spacing32),
                 // App logo placeholder
                 Container(
@@ -256,16 +137,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   margin: const EdgeInsets.only(bottom: UIConstants.spacing32),
                 ),
                 CustomButton(
-                  text: 'Login as Parent',
-                  onPressed: _isLoading ? null : _loginAsParent,
-                  isLoading: _isParentLoading,
+                  text: 'Login',
+                  onPressed: userProvider.isLoading ? null : _login,
+                  isLoading: userProvider.isLoading,
                   margin: const EdgeInsets.only(bottom: UIConstants.spacing16),
-                ),
-                CustomButton(
-                  text: 'Login as Teacher',
-                  variant: ButtonVariant.outline,
-                  onPressed: _isLoading ? null : _loginAsTeacher,
-                  isLoading: _isTeacherLoading,
                 ),
                 const SizedBox(height: UIConstants.spacing16),
                 TextButton(
@@ -300,7 +175,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ],
                 ),
-              ],
+                  ],
+                );
+              },
             ),
           ),
         ),
