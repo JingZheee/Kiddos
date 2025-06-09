@@ -11,6 +11,7 @@ class User {
   final String roleId;
   final UserRole? role;
   final Timestamps timestamps;
+  final String? kindergartenId;
 
   User({
     required this.id,
@@ -21,6 +22,7 @@ class User {
     required this.roleId,
     this.role,
     required this.timestamps,
+    this.kindergartenId,
   });
 
   bool get isParent => role?.type == RoleType.parent;
@@ -35,6 +37,7 @@ class User {
     required String roleId,
     String? phoneNumber,
     String? photoUrl,
+    String? kindergartenId,
   }) {
     return User(
       id: uid,
@@ -44,6 +47,7 @@ class User {
       photoUrl: photoUrl,
       roleId: roleId,
       timestamps: Timestamps.now(),
+      kindergartenId: kindergartenId,
     );
   }
 
@@ -60,6 +64,7 @@ class User {
       timestamps: data['timestamps'] != null 
           ? Timestamps.fromJson(data['timestamps'])
           : _timestampsFromFirestore(data),
+      kindergartenId: data['kindergartenId'],
     );
   }
 
@@ -85,6 +90,7 @@ class User {
       'roleId': roleId,
       'createdAt': Timestamp.fromDate(timestamps.createdAt),
       'updatedAt': Timestamp.fromDate(timestamps.updatedAt),
+      if (kindergartenId != null) 'kindergartenId': kindergartenId,
     };
   }
 
@@ -108,6 +114,7 @@ class User {
       'photo_url': photoUrl,
       'role_id': roleId,
       'timestamps': timestamps.toJson(),
+      'kindergarten_id': kindergartenId,
     };
   }
 
@@ -121,6 +128,7 @@ class User {
       roleId: map['role_id']?.toString() ?? '',
       role: map['role'] != null ? UserRole.fromMap(map['role']) : null,
       timestamps: Timestamps.fromJson(map['timestamps']),
+      kindergartenId: map['kindergarten_id'],
     );
   }
 
@@ -133,6 +141,7 @@ class User {
     String? roleId,
     UserRole? role,
     Timestamps? timestamps,
+    String? kindergartenId,
   }) {
     return User(
       id: id ?? this.id,
@@ -143,6 +152,7 @@ class User {
       roleId: roleId ?? this.roleId,
       role: role ?? this.role,
       timestamps: timestamps ?? this.timestamps,
+      kindergartenId: kindergartenId ?? this.kindergartenId,
     );
   }
 }

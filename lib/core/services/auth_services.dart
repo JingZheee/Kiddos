@@ -17,7 +17,6 @@ class AuthService {
 
   // Get current user email
   static String? get currentUserEmail => _auth.currentUser?.email;
-  
 
   // Register new user
   static Future<AuthResult> registerUser({
@@ -25,6 +24,7 @@ class AuthService {
     required String password,
     required String name,
     required String roleId,
+    String? kindergartenId,
   }) async {
     try {
       // Create user with email and password
@@ -42,6 +42,7 @@ class AuthService {
         email: email,
         name: name,
         roleId: roleId,
+        kindergartenId: kindergartenId,
       );
 
       // Validate user data
@@ -62,7 +63,8 @@ class AuthService {
     } on FirebaseAuthException catch (e) {
       return AuthResult.failure(_getAuthErrorMessage(e));
     } catch (e) {
-      return AuthResult.failure('An unexpected error occurred during registration');
+      return AuthResult.failure(
+          'An unexpected error occurred during registration');
     }
   }
 
@@ -101,7 +103,8 @@ class AuthService {
       if (e.code == 'invalid-email') {
         return AuthResult.failure('Please enter a valid email address');
       } else {
-        return AuthResult.failure('Error sending password reset email. Please try again later.');
+        return AuthResult.failure(
+            'Error sending password reset email. Please try again later.');
       }
     } catch (e) {
       return AuthResult.failure('An error occurred. Please try again later');
@@ -151,6 +154,6 @@ class AuthResult {
   AuthResult._({required this.isSuccess, this.errorMessage});
 
   factory AuthResult.success() => AuthResult._(isSuccess: true);
-  factory AuthResult.failure(String message) => 
+  factory AuthResult.failure(String message) =>
       AuthResult._(isSuccess: false, errorMessage: message);
 }

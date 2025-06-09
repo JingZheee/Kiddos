@@ -5,6 +5,8 @@ import '../../core/theme/app_theme.dart';
 import '../../core/providers/user_provider.dart';
 import '../../widgets/custom_app_bar.dart';
 import '../../widgets/custom_card.dart';
+import '../../core/services/kindergarten_service.dart';
+import '../../models/kindergarten/kindergarten.dart';
 
 class ParentDashboardScreen extends StatefulWidget {
   const ParentDashboardScreen({super.key});
@@ -15,6 +17,29 @@ class ParentDashboardScreen extends StatefulWidget {
 
 class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
   int _selectedIndex = 0;
+  Kindergarten? _kindergarten;
+  final KindergartenService _kindergartenService = KindergartenService();
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchKindergarten();
+  }
+
+  Future<void> _fetchKindergarten() async {
+    final userProvider = context.read<UserProvider>();
+    final kindergartenId = userProvider.userModel?.kindergartenId;
+
+    if (kindergartenId != null) {
+      _kindergartenService.getKindergarten(kindergartenId).then((kg) {
+        if (mounted) {
+          setState(() {
+            _kindergarten = kg;
+          });
+        }
+      });
+    }
+  }
 
   void _signOut() async {
     final userProvider = context.read<UserProvider>();
@@ -79,14 +104,24 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Good Morning, Parent',
-            style: TextStyle(
+          Text(
+            'Good Morning, ' + (context.read<UserProvider>().userModel?.userName ?? 'Parent') + '!',
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
               color: AppTheme.textPrimaryColor,
             ),
           ),
+          const SizedBox(height: UIConstants.spacing8),
+          if (_kindergarten != null)
+            Text(
+              'Kindergarten: ${_kindergarten!.name}',
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: AppTheme.textSecondaryColor,
+              ),
+            ),
           const SizedBox(height: UIConstants.spacing8),
           const Text(
             'Here\'s what\'s happening today',
