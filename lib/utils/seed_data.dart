@@ -4,7 +4,6 @@ import 'package:nursery_app/models/classroom/classroom_teacher.dart';
 import 'package:nursery_app/models/kindergarten/kindergarten.dart';
 import 'package:nursery_app/models/student/student.dart';
 import 'package:nursery_app/models/student/student_parent.dart';
-import 'package:nursery_app/models/kindergarten/teacher_kindergarten.dart';
 import 'package:uuid/uuid.dart';
 import 'package:cloud_firestore/cloud_firestore.dart'; // For Timestamp
 import 'package:firebase_core/firebase_core.dart';
@@ -19,7 +18,6 @@ class SeedData {
   static List<Student> students = [];
   static List<StudentParent> studentParents = [];
   static List<ClassroomTeacher> classroomTeachers = [];
-  static List<TeacherKindergarten> teacherKindergartens = [];
   static List<ClassroomKindergarten> classroomKindergartens = [];
 
   static Future<void> generateSeedData() async {
@@ -29,7 +27,6 @@ class SeedData {
     students.clear();
     studentParents.clear();
     classroomTeachers.clear();
-    teacherKindergartens.clear();
     classroomKindergartens.clear();
 
     final now = DateTime.now();
@@ -91,15 +88,8 @@ class SeedData {
               .add(classroomTeacher.toFirestore());
 
           // Associate Teacher with Kindergarten
-          final teacherKindergarten = TeacherKindergarten(
-            teacherId: teacherId,
-            kindergartenId: kindergartenId,
-            timestamps: Timestamps.now(),
-          );
-          teacherKindergartens.add(teacherKindergarten);
-          await _firestore
-              .collection('teacherKindergartens')
-              .add(teacherKindergarten.toFirestore());
+          // This relationship is now handled in the User model directly.
+          // The previous TeacherKindergarten creation logic is removed.
         }
 
         // Generate 10 Students per Classroom
@@ -165,11 +155,6 @@ class SeedData {
     print('\nClassroom Teachers (${classroomTeachers.length}):');
     for (var ct in classroomTeachers) {
       print('- Classroom ID: ${ct.classroomId}, Teacher ID: ${ct.teacherId}');
-    }
-    print('\nTeacher Kindergartens (${teacherKindergartens.length}):');
-    for (var tk in teacherKindergartens) {
-      print(
-          '- Teacher ID: ${tk.teacherId}, Kindergarten ID: ${tk.kindergartenId}');
     }
     print('\nClassroom Kindergartens (${classroomKindergartens.length}):');
     for (var ck in classroomKindergartens) {
