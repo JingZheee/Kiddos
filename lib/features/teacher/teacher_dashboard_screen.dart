@@ -307,6 +307,7 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
       ],
     );
   }
+
   Widget _buildQuickActions() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -320,7 +321,8 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
               _selectedIndex = 2;
             });
           },
-        ),        QuickActionButton(
+        ),
+        QuickActionButton(
           icon: Icons.poll_outlined,
           label: 'Surveys',
           onTap: () {
@@ -352,7 +354,7 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
             AppNavigation.goToTeacherMedications(context);
           },
         ),
-          QuickActionButton(
+        QuickActionButton(
           icon: Icons.note_alt_outlined,
           label: 'Take Leave',
           onTap: () {

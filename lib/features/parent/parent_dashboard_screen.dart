@@ -347,6 +347,13 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
           },
         ),
         QuickActionButton(
+          icon: Icons.announcement_outlined,
+          label: 'Announcements',
+          onTap: () {
+            context.go('/parent/dashboard/announcements');
+          },
+        ),
+        QuickActionButton(
           icon: Icons.schedule_outlined,
           label: 'Pick Up',
           onTap: () {

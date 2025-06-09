@@ -25,6 +25,12 @@ import '../../features/teacher/classroom_selection_screen.dart';
 import '../../features/parent/leave/parent_leave_screen.dart';
 import '../../features/parent/leave/parent_request_leave.dart';
 import '../../features/teacher/leave/teacher_leave_request.dart';
+import '../../features/parent/announcements/announcements_screen.dart';
+import '../../features/parent/announcements/announcement_detail_screen.dart';
+import '../../features/teacher/announcements/announcement_management_screen.dart';
+import '../../features/teacher/announcements/create_announcement_screen.dart';
+import '../../features/teacher/announcements/edit_announcement_screen.dart';
+import '../../models/announcement/announcement.dart';
 
 class AppRouter {
   static GoRouter createRouter({
