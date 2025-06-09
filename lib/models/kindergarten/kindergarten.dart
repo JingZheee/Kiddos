@@ -1,13 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:nursery_app/models/timestamp/timestamp_model.dart';
 
-class Kindergarten extends Timestamps {
+class Kindergarten {
   final String id;
   final String name;
   final String? address;
   final String? contactPhone;
   final String? contactEmail;
   final String? description;
+  final Timestamps timestamps;
 
   Kindergarten({
     required this.id,
@@ -16,8 +17,7 @@ class Kindergarten extends Timestamps {
     this.contactPhone,
     this.contactEmail,
     this.description,
-    required super.createdAt,
-    required super.updatedAt,
+    required this.timestamps,
   });
 
   factory Kindergarten.fromFirestore(DocumentSnapshot doc) {
@@ -29,8 +29,20 @@ class Kindergarten extends Timestamps {
       contactPhone: data['contactPhone'],
       contactEmail: data['contactEmail'],
       description: data['description'],
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
-      updatedAt: (data['updatedAt'] as Timestamp).toDate(),
+      timestamps: data['timestamps'] != null
+          ? Timestamps.fromJson(data['timestamps'])
+          : _timestampsFromFirestore(data as Map<String, dynamic>),
+    );
+  }
+
+  static Timestamps _timestampsFromFirestore(Map<String, dynamic> data) {
+    final createdAt = data['createdAt'];
+    final updatedAt = data['updatedAt'];
+    final now = DateTime.now();
+
+    return Timestamps(
+      createdAt: createdAt is Timestamp ? createdAt.toDate() : now,
+      updatedAt: updatedAt is Timestamp ? updatedAt.toDate() : now,
     );
   }
 
@@ -41,8 +53,10 @@ class Kindergarten extends Timestamps {
       'contactPhone': contactPhone,
       'contactEmail': contactEmail,
       'description': description,
-      'createdAt': Timestamp.fromDate(createdAt),
-      'updatedAt': Timestamp.fromDate(updatedAt),
+      'createdAt': Timestamp.fromDate(timestamps.createdAt),
+      'updatedAt': Timestamp.fromDate(timestamps.updatedAt),
+      if (timestamps.deletedAt != null)
+        'deletedAt': Timestamp.fromDate(timestamps.deletedAt!),
     };
   }
 
@@ -53,9 +67,7 @@ class Kindergarten extends Timestamps {
     String? contactPhone,
     String? contactEmail,
     String? description,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    DateTime? deletedAt,
+    Timestamps? timestamps,
   }) {
     return Kindergarten(
       id: id ?? this.id,
@@ -64,8 +76,7 @@ class Kindergarten extends Timestamps {
       contactPhone: contactPhone ?? this.contactPhone,
       contactEmail: contactEmail ?? this.contactEmail,
       description: description ?? this.description,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
+      timestamps: timestamps ?? this.timestamps,
     );
   }
 }

@@ -8,6 +8,7 @@ import 'package:nursery_app/models/kindergarten/teacher_kindergarten.dart';
 import 'package:uuid/uuid.dart';
 import 'package:cloud_firestore/cloud_firestore.dart'; // For Timestamp
 import 'package:firebase_core/firebase_core.dart';
+import 'package:nursery_app/models/timestamp/timestamp_model.dart';
 
 class SeedData {
   static final _uuid = const Uuid();
@@ -43,14 +44,13 @@ class SeedData {
         contactPhone: '+1-${i}00-100-0000',
         contactEmail: 'kg${i + 1}@example.com',
         description: 'A wonderful place for kids to learn and grow.',
-        createdAt: now,
-        updatedAt: now,
+        timestamps: Timestamps.now(),
       );
       kindergartens.add(kindergarten);
       await _firestore
           .collection('kindergartens')
           .doc(kindergarten.id)
-          .set(kindergarten.toJson());
+          .set(kindergarten.toFirestore());
 
       // Generate 2 Classrooms per Kindergarten
       for (int j = 0; j < 2; j++) {
@@ -58,26 +58,24 @@ class SeedData {
         final classroom = Classroom(
           id: classroomId,
           name: 'Classroom ${j + 1} - ${kindergarten.name}',
-          createdAt: now,
-          updatedAt: now,
+          timestamps: Timestamps.now(),
         );
         classrooms.add(classroom);
         await _firestore
             .collection('classrooms')
             .doc(classroom.id)
-            .set(classroom.toJson());
+            .set(classroom.toFirestore());
 
         // Associate Classroom with Kindergarten
         final classroomKindergarten = ClassroomKindergarten(
           classroomId: classroomId,
           kindergartenId: kindergartenId,
-          createdAt: now,
-          updatedAt: now,
+          timestamps: Timestamps.now(),
         );
         classroomKindergartens.add(classroomKindergarten);
         await _firestore
             .collection('classroomKindergartens')
-            .add(classroomKindergarten.toJson());
+            .add(classroomKindergarten.toFirestore());
 
         // Generate 2 Teachers per Classroom (and associate with Kindergarten)
         for (int k = 0; k < 2; k++) {
@@ -85,25 +83,23 @@ class SeedData {
           final classroomTeacher = ClassroomTeacher(
             classroomId: classroomId,
             teacherId: teacherId,
-            createdAt: now,
-            updatedAt: now,
+            timestamps: Timestamps.now(),
           );
           classroomTeachers.add(classroomTeacher);
           await _firestore
               .collection('classroomTeachers')
-              .add(classroomTeacher.toJson());
+              .add(classroomTeacher.toFirestore());
 
           // Associate Teacher with Kindergarten
           final teacherKindergarten = TeacherKindergarten(
             teacherId: teacherId,
             kindergartenId: kindergartenId,
-            createdAt: now,
-            updatedAt: now,
+            timestamps: Timestamps.now(),
           );
           teacherKindergartens.add(teacherKindergarten);
           await _firestore
               .collection('teacherKindergartens')
-              .add(teacherKindergarten.toJson());
+              .add(teacherKindergarten.toFirestore());
         }
 
         // Generate 10 Students per Classroom
@@ -120,14 +116,13 @@ class SeedData {
             admissionDate: now,
             profilePictureUrl:
                 'https://example.com/student_profile_${s + 1}.png',
-            createdAt: now,
-            updatedAt: now,
+            timestamps: Timestamps.now(),
           );
           students.add(student);
           await _firestore
               .collection('students')
               .doc(student.id)
-              .set(student.toJson());
+              .set(student.toFirestore());
 
           // Generate 1 Parent per Student
           final parentId = _uuid.v4(); // Placeholder for actual user ID
@@ -135,13 +130,12 @@ class SeedData {
             parentId: parentId,
             studentId: studentId,
             relationshipType: s % 2 == 0 ? 'mother' : 'father',
-            createdAt: now,
-            updatedAt: now,
+            timestamps: Timestamps.now(),
           );
           studentParents.add(studentParent);
           await _firestore
               .collection('studentParents')
-              .add(studentParent.toJson());
+              .add(studentParent.toFirestore());
         }
       }
     }

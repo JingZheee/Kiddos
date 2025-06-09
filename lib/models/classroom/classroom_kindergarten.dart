@@ -1,16 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:nursery_app/models/timestamp/timestamp_model.dart';
 
-class ClassroomKindergarten extends Timestamps {
+class ClassroomKindergarten {
   final String classroomId;
   final String kindergartenId;
+  final Timestamps timestamps;
 
   ClassroomKindergarten({
     required this.classroomId,
     required this.kindergartenId,
-    required super.createdAt,
-    required super.updatedAt,
-    super.deletedAt,
+    required this.timestamps,
   });
 
   factory ClassroomKindergarten.fromFirestore(DocumentSnapshot doc) {
@@ -18,9 +17,22 @@ class ClassroomKindergarten extends Timestamps {
     return ClassroomKindergarten(
       classroomId: data['classroomId'] ?? '',
       kindergartenId: data['kindergartenId'] ?? '',
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
-      updatedAt: (data['updatedAt'] as Timestamp).toDate(),
-      deletedAt: (data['deletedAt'] as Timestamp?)?.toDate(),
+      timestamps: data['timestamps'] != null
+          ? Timestamps.fromJson(data['timestamps'])
+          : _timestampsFromFirestore(data),
+    );
+  }
+
+  static Timestamps _timestampsFromFirestore(Map<String, dynamic> data) {
+    final createdAt = data['createdAt'];
+    final updatedAt = data['updatedAt'];
+    final deletedAt = data['deletedAt'];
+    final now = DateTime.now();
+
+    return Timestamps(
+      createdAt: createdAt is Timestamp ? createdAt.toDate() : now,
+      updatedAt: updatedAt is Timestamp ? updatedAt.toDate() : now,
+      deletedAt: deletedAt is Timestamp ? deletedAt.toDate() : null,
     );
   }
 
@@ -28,25 +40,20 @@ class ClassroomKindergarten extends Timestamps {
     return {
       'classroomId': classroomId,
       'kindergartenId': kindergartenId,
-      'createdAt': Timestamp.fromDate(createdAt),
-      'updatedAt': Timestamp.fromDate(updatedAt),
-      if (deletedAt != null) 'deletedAt': Timestamp.fromDate(deletedAt!),
+      'createdAt': Timestamp.fromDate(timestamps.createdAt),
+      'updatedAt': Timestamp.fromDate(timestamps.updatedAt),
     };
   }
 
   ClassroomKindergarten copyWith({
     String? classroomId,
     String? kindergartenId,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    DateTime? deletedAt,
+    Timestamps? timestamps,
   }) {
     return ClassroomKindergarten(
       classroomId: classroomId ?? this.classroomId,
       kindergartenId: kindergartenId ?? this.kindergartenId,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      deletedAt: deletedAt ?? this.deletedAt,
+      timestamps: timestamps ?? this.timestamps,
     );
   }
 }

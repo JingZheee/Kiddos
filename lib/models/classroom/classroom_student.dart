@@ -1,16 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:nursery_app/models/timestamp/timestamp_model.dart';
 
-class ClassroomStudent extends Timestamps {
+class ClassroomStudent {
   final String studentId;
   final String classroomId;
+  final Timestamps timestamps;
 
   ClassroomStudent({
     required this.studentId,
     required this.classroomId,
-    required super.createdAt,
-    required super.updatedAt,
-    super.deletedAt,
+    required this.timestamps,
   });
 
   factory ClassroomStudent.fromFirestore(DocumentSnapshot doc) {
@@ -18,9 +17,22 @@ class ClassroomStudent extends Timestamps {
     return ClassroomStudent(
       studentId: data['studentId'] ?? '',
       classroomId: data['classroomId'] ?? '',
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
-      updatedAt: (data['updatedAt'] as Timestamp).toDate(),
-      deletedAt: (data['deletedAt'] as Timestamp?)?.toDate(),
+      timestamps: data['timestamps'] != null
+          ? Timestamps.fromJson(data['timestamps'])
+          : _timestampsFromFirestore(data),
+    );
+  }
+
+  static Timestamps _timestampsFromFirestore(Map<String, dynamic> data) {
+    final createdAt = data['createdAt'];
+    final updatedAt = data['updatedAt'];
+    final deletedAt = data['deletedAt'];
+    final now = DateTime.now();
+
+    return Timestamps(
+      createdAt: createdAt is Timestamp ? createdAt.toDate() : now,
+      updatedAt: updatedAt is Timestamp ? updatedAt.toDate() : now,
+      deletedAt: deletedAt is Timestamp ? deletedAt.toDate() : null,
     );
   }
 
@@ -28,25 +40,22 @@ class ClassroomStudent extends Timestamps {
     return {
       'studentId': studentId,
       'classroomId': classroomId,
-      'createdAt': Timestamp.fromDate(createdAt),
-      'updatedAt': Timestamp.fromDate(updatedAt),
-      if (deletedAt != null) 'deletedAt': Timestamp.fromDate(deletedAt!),
+      'createdAt': Timestamp.fromDate(timestamps.createdAt),
+      'updatedAt': Timestamp.fromDate(timestamps.updatedAt),
+      if (timestamps.deletedAt != null)
+        'deletedAt': Timestamp.fromDate(timestamps.deletedAt!),
     };
   }
 
   ClassroomStudent copyWith({
     String? studentId,
     String? classroomId,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    DateTime? deletedAt,
+    Timestamps? timestamps,
   }) {
     return ClassroomStudent(
       studentId: studentId ?? this.studentId,
       classroomId: classroomId ?? this.classroomId,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      deletedAt: deletedAt ?? this.deletedAt,
+      timestamps: timestamps ?? this.timestamps,
     );
   }
 }

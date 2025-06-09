@@ -1,18 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:nursery_app/models/timestamp/timestamp_model.dart';
 
-class StudentParent extends Timestamps {
+class StudentParent {
   final String parentId;
   final String studentId;
   final String relationshipType;
+  final Timestamps timestamps;
 
   StudentParent({
     required this.parentId,
     required this.studentId,
     required this.relationshipType,
-    required super.createdAt,
-    required super.updatedAt,
-    super.deletedAt,
+    required this.timestamps,
   });
 
   factory StudentParent.fromFirestore(DocumentSnapshot doc) {
@@ -21,9 +20,22 @@ class StudentParent extends Timestamps {
       parentId: data['parentId'] ?? '',
       studentId: data['studentId'] ?? '',
       relationshipType: data['relationshipType'] ?? '',
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
-      updatedAt: (data['updatedAt'] as Timestamp).toDate(),
-      deletedAt: (data['deletedAt'] as Timestamp?)?.toDate(),
+      timestamps: data['timestamps'] != null
+          ? Timestamps.fromJson(data['timestamps'])
+          : _timestampsFromFirestore(data),
+    );
+  }
+
+  static Timestamps _timestampsFromFirestore(Map<String, dynamic> data) {
+    final createdAt = data['createdAt'];
+    final updatedAt = data['updatedAt'];
+    final deletedAt = data['deletedAt'];
+    final now = DateTime.now();
+
+    return Timestamps(
+      createdAt: createdAt is Timestamp ? createdAt.toDate() : now,
+      updatedAt: updatedAt is Timestamp ? updatedAt.toDate() : now,
+      deletedAt: deletedAt is Timestamp ? deletedAt.toDate() : null,
     );
   }
 
@@ -32,9 +44,10 @@ class StudentParent extends Timestamps {
       'parentId': parentId,
       'studentId': studentId,
       'relationshipType': relationshipType,
-      'createdAt': Timestamp.fromDate(createdAt),
-      'updatedAt': Timestamp.fromDate(updatedAt),
-      if (deletedAt != null) 'deletedAt': Timestamp.fromDate(deletedAt!),
+      'createdAt': Timestamp.fromDate(timestamps.createdAt),
+      'updatedAt': Timestamp.fromDate(timestamps.updatedAt),
+      if (timestamps.deletedAt != null)
+        'deletedAt': Timestamp.fromDate(timestamps.deletedAt!),
     };
   }
 
@@ -42,17 +55,13 @@ class StudentParent extends Timestamps {
     String? parentId,
     String? studentId,
     String? relationshipType,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    DateTime? deletedAt,
+    Timestamps? timestamps,
   }) {
     return StudentParent(
       parentId: parentId ?? this.parentId,
       studentId: studentId ?? this.studentId,
       relationshipType: relationshipType ?? this.relationshipType,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      deletedAt: deletedAt ?? this.deletedAt,
+      timestamps: timestamps ?? this.timestamps,
     );
   }
 }

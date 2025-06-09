@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:nursery_app/models/timestamp/timestamp_model.dart';
 
-class Student extends Timestamps {
+class Student {
   final String id;
   final String firstName;
   final String lastName;
@@ -11,6 +11,7 @@ class Student extends Timestamps {
   final String? classroomId;
   final String? profilePictureUrl;
   final DateTime? admissionDate;
+  final Timestamps timestamps;
 
   Student({
     required this.id,
@@ -22,9 +23,7 @@ class Student extends Timestamps {
     this.classroomId,
     this.profilePictureUrl,
     this.admissionDate,
-    required super.createdAt,
-    required super.updatedAt,
-    super.deletedAt,
+    required this.timestamps,
   });
 
   factory Student.fromFirestore(DocumentSnapshot doc) {
@@ -39,9 +38,22 @@ class Student extends Timestamps {
       classroomId: data['classroomId'],
       profilePictureUrl: data['profilePictureUrl'],
       admissionDate: (data['admissionDate'] as Timestamp?)?.toDate(),
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
-      updatedAt: (data['updatedAt'] as Timestamp).toDate(),
-      deletedAt: (data['deletedAt'] as Timestamp?)?.toDate(),
+      timestamps: data['timestamps'] != null
+          ? Timestamps.fromJson(data['timestamps'])
+          : _timestampsFromFirestore(data),
+    );
+  }
+
+  static Timestamps _timestampsFromFirestore(Map<String, dynamic> data) {
+    final createdAt = data['createdAt'];
+    final updatedAt = data['updatedAt'];
+    final deletedAt = data['deletedAt'];
+    final now = DateTime.now();
+
+    return Timestamps(
+      createdAt: createdAt is Timestamp ? createdAt.toDate() : now,
+      updatedAt: updatedAt is Timestamp ? updatedAt.toDate() : now,
+      deletedAt: deletedAt is Timestamp ? deletedAt.toDate() : null,
     );
   }
 
@@ -56,9 +68,10 @@ class Student extends Timestamps {
       'profilePictureUrl': profilePictureUrl,
       'admissionDate':
           admissionDate != null ? Timestamp.fromDate(admissionDate!) : null,
-      'createdAt': Timestamp.fromDate(createdAt),
-      'updatedAt': Timestamp.fromDate(updatedAt),
-      if (deletedAt != null) 'deletedAt': Timestamp.fromDate(deletedAt!),
+      'createdAt': Timestamp.fromDate(timestamps.createdAt),
+      'updatedAt': Timestamp.fromDate(timestamps.updatedAt),
+      if (timestamps.deletedAt != null)
+        'deletedAt': Timestamp.fromDate(timestamps.deletedAt!),
     };
   }
 
@@ -72,9 +85,7 @@ class Student extends Timestamps {
     String? classroomId,
     String? profilePictureUrl,
     DateTime? admissionDate,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    DateTime? deletedAt,
+    Timestamps? timestamps,
   }) {
     return Student(
       id: id ?? this.id,
@@ -86,9 +97,7 @@ class Student extends Timestamps {
       classroomId: classroomId ?? this.classroomId,
       profilePictureUrl: profilePictureUrl ?? this.profilePictureUrl,
       admissionDate: admissionDate ?? this.admissionDate,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      deletedAt: deletedAt ?? this.deletedAt,
+      timestamps: timestamps ?? this.timestamps,
     );
   }
 }
