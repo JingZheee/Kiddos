@@ -5,6 +5,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/providers/user_provider.dart';
 import '../../widgets/custom_app_bar.dart';
 import '../../widgets/custom_card.dart';
+import 'package:go_router/go_router.dart';
 
 class TeacherDashboardScreen extends StatefulWidget {
   const TeacherDashboardScreen({super.key});
@@ -18,7 +19,7 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
 
   void _signOut() async {
     final userProvider = context.read<UserProvider>();
-    
+
     try {
       await userProvider.signOut();
       // No need for manual navigation - AuthenticationWrapper will handle it
@@ -96,7 +97,7 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
             ),
           ),
           const SizedBox(height: UIConstants.spacing24),
-          
+
           // Class summary card
           InfoCard(
             title: 'Class Summary',
@@ -108,7 +109,7 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
             },
             margin: const EdgeInsets.only(bottom: UIConstants.spacing16),
           ),
-          
+
           // Today's schedule
           InfoCard(
             title: 'Today\'s Schedule',
@@ -120,7 +121,7 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
             },
             margin: const EdgeInsets.only(bottom: UIConstants.spacing16),
           ),
-          
+
           // Pending tasks
           const Text(
             'Pending Tasks',
@@ -132,9 +133,9 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
           ),
           const SizedBox(height: UIConstants.spacing16),
           _buildPendingTasks(),
-          
+
           const SizedBox(height: UIConstants.spacing24),
-          
+
           // Quick actions
           const Text(
             'Quick Actions',
@@ -218,6 +219,13 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
           label: 'Photo',
           onTap: () {
             // TODO: Take photo
+          },
+        ),
+        QuickActionButton(
+          icon: Icons.announcement_outlined,
+          label: 'Announcements',
+          onTap: () {
+            context.go('/teacher/dashboard/announcements');
           },
         ),
       ],
@@ -312,7 +320,9 @@ class TaskItem extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isCompleted ? AppTheme.accentColor1 : Colors.transparent,
                 border: Border.all(
-                  color: isCompleted ? AppTheme.accentColor1 : AppTheme.textSecondaryColor,
+                  color: isCompleted
+                      ? AppTheme.accentColor1
+                      : AppTheme.textSecondaryColor,
                   width: 2,
                 ),
                 shape: BoxShape.circle,

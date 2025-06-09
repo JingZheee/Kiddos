@@ -5,6 +5,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/providers/user_provider.dart';
 import '../../widgets/custom_app_bar.dart';
 import '../../widgets/custom_card.dart';
+import 'package:go_router/go_router.dart';
 
 class ParentDashboardScreen extends StatefulWidget {
   const ParentDashboardScreen({super.key});
@@ -18,7 +19,7 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
 
   void _signOut() async {
     final userProvider = context.read<UserProvider>();
-    
+
     try {
       await userProvider.signOut();
       // No need for manual navigation - AuthenticationWrapper will handle it
@@ -96,7 +97,7 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
             ),
           ),
           const SizedBox(height: UIConstants.spacing24),
-          
+
           // Child status card
           StatusCard(
             title: 'Emily\'s Status',
@@ -108,7 +109,7 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
             },
             margin: const EdgeInsets.only(bottom: UIConstants.spacing16),
           ),
-          
+
           // Today's schedule
           InfoCard(
             title: 'Today\'s Schedule',
@@ -119,7 +120,7 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
             },
             margin: const EdgeInsets.only(bottom: UIConstants.spacing16),
           ),
-          
+
           // Recent activities
           const Text(
             'Recent Activities',
@@ -131,9 +132,9 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
           ),
           const SizedBox(height: UIConstants.spacing16),
           _buildRecentActivities(),
-          
+
           const SizedBox(height: UIConstants.spacing24),
-          
+
           // Quick actions
           const Text(
             'Quick Actions',
@@ -217,6 +218,13 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
           label: 'Calendar',
           onTap: () {
             // TODO: Navigate to calendar
+          },
+        ),
+        QuickActionButton(
+          icon: Icons.announcement_outlined,
+          label: 'Announcements',
+          onTap: () {
+            context.go('/parent/dashboard/announcements');
           },
         ),
         QuickActionButton(
