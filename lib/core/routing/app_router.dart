@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../features/medications/parent_add_medication.dart';
+import '../../features/medications/parent_edit_medication.dart';
+import '../../features/medications/parent_medications.dart';
 import '../providers/user_provider.dart';
 import '../providers/user_role_provider.dart';
 import '../../features/auth/login_screen.dart';
@@ -103,6 +106,28 @@ class AppRouter {
             //   name: 'parent-profile',
             //   builder: (context, state) => const ParentProfileScreen(),
             // ),
+          ],
+        ),
+
+        // Parent Medications routes 
+        GoRoute(
+          path: '/parent/medications',
+          name: 'parent-medications',
+          builder: (context, state) => const ParentMedicationsScreen(),
+          routes: [
+            // Add child routes for parent here
+            GoRoute(
+              path: 'add',
+              name: 'parent-add-medication',
+              builder: (context, state) => const ParentAddMedicationScreen(),
+            ),
+            GoRoute(
+              path: 'edit/:medicationId',
+              name: 'parent-edit-medication',
+              builder: (context, state) => ParentEditMedication(
+                medicationId: state.pathParameters['medicationId']!,
+              ),
+            ),
           ],
         ),
 
