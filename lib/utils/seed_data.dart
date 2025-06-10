@@ -1,5 +1,4 @@
 import 'package:nursery_app/models/classroom/classroom.dart';
-import 'package:nursery_app/models/classroom/classroom_kindergarten.dart';
 import 'package:nursery_app/models/classroom/classroom_teacher.dart';
 import 'package:nursery_app/models/kindergarten/kindergarten.dart';
 import 'package:nursery_app/models/student/student.dart';
@@ -18,7 +17,6 @@ class SeedData {
   static List<Student> students = [];
   static List<StudentParent> studentParents = [];
   static List<ClassroomTeacher> classroomTeachers = [];
-  static List<ClassroomKindergarten> classroomKindergartens = [];
 
   static Future<void> generateSeedData() async {
     // Clear previous data
@@ -27,7 +25,6 @@ class SeedData {
     students.clear();
     studentParents.clear();
     classroomTeachers.clear();
-    classroomKindergartens.clear();
 
     final now = DateTime.now();
 
@@ -55,6 +52,7 @@ class SeedData {
         final classroom = Classroom(
           id: classroomId,
           name: 'Classroom ${j + 1} - ${kindergarten.name}',
+          kindergartenId: kindergartenId,
           timestamps: Timestamps.now(),
         );
         classrooms.add(classroom);
@@ -63,21 +61,13 @@ class SeedData {
             .doc(classroom.id)
             .set(classroom.toFirestore());
 
-        // Associate Classroom with Kindergarten
-        final classroomKindergarten = ClassroomKindergarten(
-          classroomId: classroomId,
-          kindergartenId: kindergartenId,
-          timestamps: Timestamps.now(),
-        );
-        classroomKindergartens.add(classroomKindergarten);
-        await _firestore
-            .collection('classroomKindergartens')
-            .add(classroomKindergarten.toFirestore());
+        // This relationship is now handled directly in the Classroom model.
 
         // Generate 2 Teachers per Classroom (and associate with Kindergarten)
         for (int k = 0; k < 2; k++) {
           final teacherId = _uuid.v4(); // Placeholder for actual user ID
           final classroomTeacher = ClassroomTeacher(
+            id: _uuid.v4(),
             classroomId: classroomId,
             teacherId: teacherId,
             timestamps: Timestamps.now(),
@@ -117,6 +107,7 @@ class SeedData {
           // Generate 1 Parent per Student
           final parentId = _uuid.v4(); // Placeholder for actual user ID
           final studentParent = StudentParent(
+            id: _uuid.v4(),
             parentId: parentId,
             studentId: studentId,
             relationshipType: s % 2 == 0 ? 'mother' : 'father',
@@ -140,7 +131,7 @@ class SeedData {
     }
     print('\nClassrooms (${classrooms.length}):');
     for (var c in classrooms) {
-      print('- ${c.name} (ID: ${c.id})');
+      print('- ${c.name} (ID: ${c.id}, KG: ${c.kindergartenId})');
     }
     print('\nStudents (${students.length}):');
     for (var s in students) {
@@ -155,11 +146,6 @@ class SeedData {
     print('\nClassroom Teachers (${classroomTeachers.length}):');
     for (var ct in classroomTeachers) {
       print('- Classroom ID: ${ct.classroomId}, Teacher ID: ${ct.teacherId}');
-    }
-    print('\nClassroom Kindergartens (${classroomKindergartens.length}):');
-    for (var ck in classroomKindergartens) {
-      print(
-          '- Classroom ID: ${ck.classroomId}, Kindergarten ID: ${ck.kindergartenId}');
     }
   }
 }

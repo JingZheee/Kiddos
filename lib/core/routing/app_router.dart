@@ -9,6 +9,8 @@ import '../../features/auth/register_screen.dart';
 import '../../features/auth/forgot_password_screen.dart';
 import '../../features/parent/parent_dashboard_screen.dart';
 import '../../features/teacher/teacher_dashboard_screen.dart';
+import '../../features/parent/student_selection_screen.dart';
+import '../../features/teacher/classroom_selection_screen.dart';
 
 class AppRouter {
   static GoRouter createRouter({
@@ -105,6 +107,13 @@ class AppRouter {
             //   name: 'parent-profile',
             //   builder: (context, state) => const ParentProfileScreen(),
             // ),
+            GoRoute(
+              path: 'student-selection/:kindergartenId',
+              name: 'parent-student-selection',
+              builder: (context, state) => StudentSelectionScreen(
+                kindergartenId: state.pathParameters['kindergartenId']!,
+              ),
+            ),
           ],
         ),
 
@@ -120,6 +129,13 @@ class AppRouter {
             //   name: 'teacher-classes',
             //   builder: (context, state) => const TeacherClassesScreen(),
             // ),
+            GoRoute(
+              path: 'classroom-selection/:kindergartenId',
+              name: 'teacher-classroom-selection',
+              builder: (context, state) => ClassroomSelectionScreen(
+                kindergartenId: state.pathParameters['kindergartenId']!,
+              ),
+            ),
           ],
         ),
 

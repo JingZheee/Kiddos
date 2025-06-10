@@ -4,11 +4,13 @@ import 'package:nursery_app/models/timestamp/timestamp_model.dart';
 class Classroom {
   final String id;
   final String name;
+  final String? kindergartenId;
   final Timestamps timestamps;
 
   Classroom({
     required this.id,
     required this.name,
+    this.kindergartenId,
     required this.timestamps,
   });
 
@@ -17,6 +19,7 @@ class Classroom {
     return Classroom(
       id: doc.id,
       name: data['name'] ?? '',
+      kindergartenId: data['kindergartenId'],
       timestamps: data['timestamps'] != null
           ? Timestamps.fromJson(data['timestamps'])
           : _timestampsFromFirestore(data),
@@ -39,6 +42,7 @@ class Classroom {
   Map<String, dynamic> toFirestore() {
     return {
       'name': name,
+      'kindergartenId': kindergartenId,
       'createdAt': Timestamp.fromDate(timestamps.createdAt),
       'updatedAt': Timestamp.fromDate(timestamps.updatedAt),
       if (timestamps.deletedAt != null)
@@ -49,11 +53,13 @@ class Classroom {
   Classroom copyWith({
     String? id,
     String? name,
+    String? kindergartenId,
     Timestamps? timestamps,
   }) {
     return Classroom(
       id: id ?? this.id,
       name: name ?? this.name,
+      kindergartenId: kindergartenId ?? this.kindergartenId,
       timestamps: timestamps ?? this.timestamps,
     );
   }

@@ -134,6 +134,16 @@ class AppNavigation {
     clearStackAndGo(context, '/login');
   }
 
+  static void goToParentStudentSelection(
+      BuildContext context, String kindergartenId) {
+    context.go('/parent/dashboard/student-selection/$kindergartenId');
+  }
+
+  static void goToTeacherClassroomSelection(
+      BuildContext context, String kindergartenId) {
+    context.go('/teacher/dashboard/classroom-selection/$kindergartenId');
+  }
+
   // Future: Add methods for nested routes when you implement them
   // Example for parent routes:
   // static void goToParentProfile(BuildContext context) {

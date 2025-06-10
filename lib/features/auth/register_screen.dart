@@ -107,8 +107,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     if (mounted) {
       if (result.isSuccess) {
-        // Navigate based on role
-        AppNavigation.goToLogin(context);
+        if (selectedRole.type == RoleType.parent) {
+          AppNavigation.goToParentStudentSelection(
+              context, _selectedKindergartenId!);
+        } else if (selectedRole.type == RoleType.teacher) {
+          AppNavigation.goToTeacherClassroomSelection(
+              context, _selectedKindergartenId!);
+        } else {
+          // // For admin or other roles, go to login or their respective dashboard
+          // AppNavigation.goToLogin(context);
+        }
       } else {
         setState(() {
           _errorMessage = result.errorMessage;

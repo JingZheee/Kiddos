@@ -2,12 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:nursery_app/models/timestamp/timestamp_model.dart';
 
 class StudentParent {
+  final String id;
   final String parentId;
   final String studentId;
   final String relationshipType;
   final Timestamps timestamps;
 
   StudentParent({
+    this.id = '',
     required this.parentId,
     required this.studentId,
     required this.relationshipType,
@@ -17,6 +19,7 @@ class StudentParent {
   factory StudentParent.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     return StudentParent(
+      id: doc.id,
       parentId: data['parentId'] ?? '',
       studentId: data['studentId'] ?? '',
       relationshipType: data['relationshipType'] ?? '',
@@ -52,12 +55,14 @@ class StudentParent {
   }
 
   StudentParent copyWith({
+    String? id,
     String? parentId,
     String? studentId,
     String? relationshipType,
     Timestamps? timestamps,
   }) {
     return StudentParent(
+      id: id ?? this.id,
       parentId: parentId ?? this.parentId,
       studentId: studentId ?? this.studentId,
       relationshipType: relationshipType ?? this.relationshipType,
