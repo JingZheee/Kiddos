@@ -45,6 +45,14 @@ class AppNavigation {
     context.go('/parent/medications/edit/$medicationId');
   }
 
+  static void goToTeacherMedications(BuildContext context) {
+    context.go('/teacher/medications');
+  }
+
+  static void goToTeacherEditMedication(BuildContext context, String medicationId) {
+    context.go('/teacher/medications/edit/$medicationId');
+  }
+
   // Utility routes
   static void goToUserRoleExample(BuildContext context) {
     context.go('/example/user-roles');

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/ui_constants.dart';
+import '../../core/routing/app_navigation.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/providers/user_provider.dart';
 import '../../widgets/custom_app_bar.dart';
@@ -218,6 +219,14 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
           label: 'Photo',
           onTap: () {
             // TODO: Take photo
+          },
+        ),
+        QuickActionButton(
+          icon: Icons.medication_outlined,
+          label: 'Medications',
+          onTap: () {
+            // TODO: Update Medication
+            AppNavigation.goToTeacherMedications(context);
           },
         ),
       ],

@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../features/medications/teacher_child_medications.dart';
+import '../../features/medications/teacher_update_medications.dart';
 import '../../features/medications/parent_add_medication.dart';
 import '../../features/medications/parent_edit_medication.dart';
 import '../../features/medications/parent_medications.dart';
+import '../../features/medications/teacher_medications.dart';
 import '../providers/user_provider.dart';
 import '../providers/user_role_provider.dart';
 import '../../features/auth/login_screen.dart';
@@ -130,6 +133,31 @@ class AppRouter {
             ),
           ],
         ),
+
+        //Teacher Medication routes
+        GoRoute(
+          path: '/teacher/medications',
+          name: 'teacher-medications',
+          builder: (context, state) => const TeacherMedicationScreen(),
+          routes: [
+            // Add child routes for teacher here
+            GoRoute(
+              path: 'child/:childId',
+              name: 'teacher-child-medications',
+              builder: (context, state) => TeacherChildMedicationsScreen(
+                childId: state.pathParameters['childId']!,
+              ),
+            ),
+            GoRoute(
+              path: 'edit/:medicationId',
+              name: 'teacher-edit-medication',
+              builder: (context, state) => TeacherUpdateMedicationsScreen(
+                medicationId: state.pathParameters['medicationId']!,
+              ),
+            ),
+          ],
+        ),
+
 
         // Teacher routes
         GoRoute(

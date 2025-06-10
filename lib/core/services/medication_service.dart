@@ -5,6 +5,15 @@ class MedicationService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final String _collectionName = 'medications';
 
+  // Fetch all medications
+  Stream<List<Medication>> getAllMedications() {
+    return _firestore.collection(_collectionName).snapshots().map((snapshot) {
+      return snapshot.docs.map((doc) {
+        return Medication.fromFirestore(doc.id, doc.data());
+      }).toList();
+    });
+  }
+
   // Fetch medications for a specific child
   Stream<List<Medication>> getMedicationsForChild(String childId) {
     return _firestore
@@ -105,6 +114,38 @@ class MedicationService {
       await docRef.set(medication.toFirestoreMap());
     } catch (e) {
       throw Exception('Failed to create medication: $e');
+    }
+  }
+
+  // Update medication status and add notes/proof
+  Future<void> updateMedicationStatus(
+    String medicationId,
+    MedicationStatus newStatus, {
+    String? notes,
+    String? proofPhotoUrl,
+  }) async {
+    try {
+      final updates = {
+        'status': newStatus.toString().split('.').last,
+        'updatedAt': FieldValue.serverTimestamp(),
+      };
+
+      if (notes != null && notes.isNotEmpty) {
+        updates['notes'] = FieldValue.arrayUnion([
+          {
+            'text': notes,
+            'timestamp': FieldValue.serverTimestamp(),
+            'photoUrl': proofPhotoUrl,
+          }
+        ]);
+      }
+
+      await _firestore
+          .collection(_collectionName)
+          .doc(medicationId)
+          .update(updates);
+    } catch (e) {
+      throw Exception('Failed to update medication: $e');
     }
   }
 }
