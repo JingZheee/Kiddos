@@ -98,6 +98,19 @@ class _ParentEditMedicationState extends State<ParentEditMedication> {
     }
   }
 
+  Future<void> _deleteMedication() async {
+    try {
+      await _medicationService.deleteMedication(widget.medicationId);
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -207,6 +220,15 @@ class _ParentEditMedicationState extends State<ParentEditMedication> {
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
                       child: const Text('Save Changes'),
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton(
+                      onPressed: _isLoading ? null : _deleteMedication,
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor: Colors.red,
+                      ),
+                      child: const Text('Delete Medication', style: TextStyle(color: Colors.white)),
                     ),
                   ],
                 ),

@@ -68,6 +68,15 @@ class MedicationService {
     }
   }
 
+  // Delete a medication
+  Future<void> deleteMedication(String medicationId) async {
+    try {
+      await _firestore.collection(_collectionName).doc(medicationId).delete();
+    } catch (e) {
+      throw Exception('Failed to delete medication: $e');
+    }
+  }
+
   // Create a new medication
   Future<void> createMedication({
     required String childId,
