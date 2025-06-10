@@ -13,6 +13,7 @@ class UserProvider extends ChangeNotifier {
   app_user.User? _userModel;
   bool _isLoading = false;
   bool _isInitialized = false;
+  bool _isRegistering = false;
   StreamSubscription<User?>? _authStateSubscription;
   final UserRoleProvider? _userRoleProvider;
 
@@ -52,8 +53,12 @@ class UserProvider extends ChangeNotifier {
     
     try {
       if (user != null) {
-        // User is logged in, fetch their data
-        await _loadUserData(user.uid);
+        // Skip loading data if we're in the middle of registration
+        // The registerUser method will handle loading data explicitly
+        if (!_isRegistering) {
+          // User is logged in, fetch their data
+          await _loadUserData(user.uid);
+        }
       } else {
         // User is logged out, clear data
         _clearUserData();
@@ -65,7 +70,9 @@ class UserProvider extends ChangeNotifier {
     } finally {
       // Always ensure loading is stopped and initialized is set
       _isInitialized = true;
-      _setLoading(false);
+      if (!_isRegistering) {
+        _setLoading(false);
+      }
     }
   }
 
@@ -145,6 +152,7 @@ class UserProvider extends ChangeNotifier {
     required String name,
     required String roleId,
   }) async {
+    _isRegistering = true;
     _setLoading(true);
     
     try {
@@ -155,16 +163,17 @@ class UserProvider extends ChangeNotifier {
         roleId: roleId,
       );
       
-      // Only keep loading if registration succeeded
-      // Auth state listener will handle setting loading to false on success
-      if (!result.isSuccess) {
-        _setLoading(false);
+      if (result.isSuccess && _firebaseUser != null) {
+        // Registration succeeded, now load the user data explicitly
+        await _loadUserData(_firebaseUser!.uid);
       }
       
       return result;
     } catch (e) {
-      _setLoading(false);
       rethrow;
+    } finally {
+      _isRegistering = false;
+      _setLoading(false);
     }
   }
 
