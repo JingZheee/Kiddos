@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../../core/constants/ui_constants.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/services/auth_services.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_text_field.dart';
 
@@ -41,33 +41,16 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       _successMessage = null;
     });
 
-    try {
-      // Send password reset email directly without checking if email exists
-      // Firebase will still send the email only if the account exists but won't tell us
-      // This is a security feature to prevent email enumeration attacks
-      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
-      
-      setState(() {
-        _isLoading = false;
+    final result = await AuthService.sendPasswordResetEmail(email);
+    
+    setState(() {
+      _isLoading = false;
+      if (result.isSuccess) {
         _successMessage = 'If an account exists with this email, a password reset link has been sent';
-      });
-    } on FirebaseAuthException catch (e) {
-      // Don't expose specific errors about whether account exists
-      // Just show a generic error message
-      setState(() {
-        _isLoading = false;
-        if (e.code == 'invalid-email') {
-          _errorMessage = 'Please enter a valid email address';
-        } else {
-          _errorMessage = 'Error sending password reset email. Please try again later.';
-        }
-      });
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-        _errorMessage = 'An error occurred. Please try again later';
-      });
-    }
+      } else {
+        _errorMessage = result.errorMessage;
+      }
+    });
   }
 
   @override

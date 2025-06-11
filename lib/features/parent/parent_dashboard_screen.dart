@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+<<<<<<< HEAD
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
+=======
+import 'package:provider/provider.dart';
+>>>>>>> main
 import '../../core/constants/ui_constants.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/providers/user_provider.dart';
 import '../../widgets/custom_app_bar.dart';
 import '../../widgets/custom_card.dart';
 
@@ -17,18 +22,20 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
   int _selectedIndex = 0;
 
   void _signOut() async {
+    final userProvider = context.read<UserProvider>();
+    
     try {
-      await FirebaseAuth.instance.signOut();
-      if (mounted) {
-        Navigator.pushReplacementNamed(context, '/login');
-      }
+      await userProvider.signOut();
+      // No need for manual navigation - AuthenticationWrapper will handle it
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Error signing out. Please try again.'),
-          backgroundColor: AppTheme.accentColor2,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error signing out. Please try again.'),
+            backgroundColor: AppTheme.accentColor2,
+          ),
+        );
+      }
     }
   }
 
@@ -200,8 +207,19 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
           icon: Icons.note_alt_outlined,
           label: 'Take Leave',
           onTap: () {
+<<<<<<< HEAD
             // TODO: Create leave request
             context.push('parent/dashboard/leave-request');
+=======
+            // TODO: Report absence
+          },
+        ),
+        QuickActionButton(
+          icon: Icons.admin_panel_settings_outlined,
+          label: 'Test Roles',
+          onTap: () {
+            Navigator.pushNamed(context, '/example/user-roles');
+>>>>>>> main
           },
         ),
         QuickActionButton(
