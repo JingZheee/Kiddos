@@ -15,6 +15,9 @@ import '../../features/auth/register_screen.dart';
 import '../../features/auth/forgot_password_screen.dart';
 import '../../features/parent/parent_dashboard_screen.dart';
 import '../../features/teacher/teacher_dashboard_screen.dart';
+import '../../features/teacher/survey/surveys_screen.dart';
+import '../../features/teacher/survey/create_survey_screen.dart';
+import '../../features/teacher/survey/survey_detail_screen.dart';
 import '../../examples/user_role_usage_example.dart';
 
 class AppRouter {
@@ -164,13 +167,32 @@ class AppRouter {
           path: '/teacher/dashboard',
           name: 'teacher-dashboard',
           builder: (context, state) => const TeacherDashboardScreen(),
-          routes: [
-            // Add child routes for teacher here
-            // GoRoute(
-            //   path: 'classes',
-            //   name: 'teacher-classes',
-            //   builder: (context, state) => const TeacherClassesScreen(),
-            // ),
+          routes: [            GoRoute(
+              path: 'surveys',
+              name: 'teacher-surveys',
+              builder: (context, state) => const SurveysScreen(),
+              routes: [
+                GoRoute(
+                  path: 'create',
+                  name: 'create-survey',
+                  builder: (context, state) => const CreateSurveyScreen(),
+                ),                GoRoute(
+                  path: 'edit/:surveyId',
+                  name: 'edit-survey',
+                  builder: (context, state) {
+                    final surveyId = state.pathParameters['surveyId'] ?? '';
+                    return CreateSurveyScreen(surveyId: surveyId);
+                  },
+                ),GoRoute(
+                  path: 'detail/:surveyId',
+                  name: 'survey-detail',
+                  builder: (context, state) {
+                    final surveyId = state.pathParameters['surveyId'] ?? '';
+                    return SurveyDetailScreen(surveyId: surveyId);
+                  },
+                ),
+              ],
+            ),
           ],
         ),
 
