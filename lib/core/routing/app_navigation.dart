@@ -32,6 +32,27 @@ class AppNavigation {
     context.go('/admin/dashboard');
   }
 
+  // Medications routes
+  static void goToParentMedications(BuildContext context) {
+    context.go('/parent/medications');
+  }
+
+  static void goToParentAddMedication(BuildContext context) {
+    context.go('/parent/medications/add');
+  }
+
+  static void goToParentEditMedication(BuildContext context, String medicationId) {
+    context.go('/parent/medications/edit/$medicationId');
+  }
+
+  static void goToTeacherMedications(BuildContext context) {
+    context.go('/teacher/medications');
+  }
+
+  static void goToTeacherEditMedication(BuildContext context, String medicationId) {
+    context.go('/teacher/medications/edit/$medicationId');
+  }
+
   // Utility routes
   static void goToUserRoleExample(BuildContext context) {
     context.go('/example/user-roles');
