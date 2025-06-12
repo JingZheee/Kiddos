@@ -20,10 +20,9 @@ void main() async {
 }
 
 class NurseryApp extends StatelessWidget {
-  const NurseryApp({super.key});
-  @override
-  Widget build(BuildContext context) {    return MultiProvider(
-      providers: [
+  const NurseryApp({super.key});  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(      providers: [
         ChangeNotifierProvider(create: (_) => UserRoleProvider()),
         ChangeNotifierProvider(create: (_) => SurveyProvider()),
         ChangeNotifierProxyProvider<UserRoleProvider, UserProvider>(

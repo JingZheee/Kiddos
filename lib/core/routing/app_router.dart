@@ -14,6 +14,8 @@ import '../../features/auth/login_screen.dart';
 import '../../features/auth/register_screen.dart';
 import '../../features/auth/forgot_password_screen.dart';
 import '../../features/parent/parent_dashboard_screen.dart';
+import '../../features/parent/survey/parent_surveys_screen.dart';
+import '../../features/parent/survey/parent_survey_form_screen.dart';
 import '../../features/teacher/teacher_dashboard_screen.dart';
 import '../../features/teacher/survey/surveys_screen.dart';
 import '../../features/teacher/survey/create_survey_screen.dart';
@@ -98,21 +100,27 @@ class AppRouter {
           path: '/forgot-password',
           name: 'forgot-password',
           builder: (context, state) => const ForgotPasswordScreen(),
-        ),
-
-        // Parent routes
+        ),        // Parent routes
         GoRoute(
           path: '/parent/dashboard',
           name: 'parent-dashboard',
           builder: (context, state) => const ParentDashboardScreen(),
           routes: [
-            // Add child routes for parent here
-            // GoRoute(
-            //   path: 'profile',
-            //   name: 'parent-profile',
-            //   builder: (context, state) => const ParentProfileScreen(),
-            // ),
-          ],
+            GoRoute(
+              path: 'surveys',
+              name: 'parent-surveys',
+              builder: (context, state) => const ParentSurveysScreen(),
+              routes: [
+                GoRoute(
+                  path: 'form/:surveyId',
+                  name: 'parent-survey-form',
+                  builder: (context, state) {
+                    final surveyId = state.pathParameters['surveyId'] ?? '';
+                    return ParentSurveyFormScreen(surveyId: surveyId);
+                  },
+                ),
+              ],
+            ),          ],
         ),
 
         // Parent Medications routes 
@@ -160,7 +168,6 @@ class AppRouter {
             ),
           ],
         ),
-
 
         // Teacher routes
         GoRoute(

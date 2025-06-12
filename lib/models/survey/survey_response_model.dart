@@ -3,6 +3,7 @@ class SurveyResponse {
   final String surveyId;
   final String userId;
   final DateTime submittedAt;
+  final DateTime createdAt;
   final List<SurveyAnswer> answers;
 
   const SurveyResponse({
@@ -10,6 +11,7 @@ class SurveyResponse {
     required this.surveyId,
     required this.userId,
     required this.submittedAt,
+    required this.createdAt,
     required this.answers,
   });
 
@@ -18,6 +20,7 @@ class SurveyResponse {
     String? surveyId,
     String? userId,
     DateTime? submittedAt,
+    DateTime? createdAt,
     List<SurveyAnswer>? answers,
   }) {
     return SurveyResponse(
@@ -25,8 +28,19 @@ class SurveyResponse {
       surveyId: surveyId ?? this.surveyId,
       userId: userId ?? this.userId,
       submittedAt: submittedAt ?? this.submittedAt,
+      createdAt: createdAt ?? this.createdAt,
       answers: answers ?? this.answers,
     );
+  }
+
+  // Convert to Firestore map (following database schema)
+  Map<String, dynamic> toFirestoreMap() {
+    return {
+      'survey_id': surveyId,
+      'user_id': userId,
+      'submitted_at': submittedAt.toIso8601String(),
+      'created_at': createdAt.toIso8601String(),
+    };
   }
 
   Map<String, dynamic> toJson() {
@@ -35,6 +49,7 @@ class SurveyResponse {
       'survey_id': surveyId,
       'user_id': userId,
       'submitted_at': submittedAt.toIso8601String(),
+      'created_at': createdAt.toIso8601String(),
       'answers': answers.map((a) => a.toJson()).toList(),
     };
   }
@@ -45,6 +60,7 @@ class SurveyResponse {
       surveyId: json['survey_id'] as String,
       userId: json['user_id'] as String,
       submittedAt: DateTime.parse(json['submitted_at'] as String),
+      createdAt: DateTime.parse(json['created_at'] as String),
       answers: (json['answers'] as List<dynamic>?)
               ?.map((a) => SurveyAnswer.fromJson(a as Map<String, dynamic>))
               .toList() ??
@@ -59,6 +75,7 @@ class SurveyAnswer {
   final String surveyQuestionId;
   final String? answerValue;
   final List<String>? selectedOptions;
+  final DateTime createdAt;
 
   const SurveyAnswer({
     required this.id,
@@ -66,6 +83,7 @@ class SurveyAnswer {
     required this.surveyQuestionId,
     this.answerValue,
     this.selectedOptions,
+    required this.createdAt,
   });
 
   SurveyAnswer copyWith({
@@ -74,6 +92,7 @@ class SurveyAnswer {
     String? surveyQuestionId,
     String? answerValue,
     List<String>? selectedOptions,
+    DateTime? createdAt,
   }) {
     return SurveyAnswer(
       id: id ?? this.id,
@@ -81,7 +100,19 @@ class SurveyAnswer {
       surveyQuestionId: surveyQuestionId ?? this.surveyQuestionId,
       answerValue: answerValue ?? this.answerValue,
       selectedOptions: selectedOptions ?? this.selectedOptions,
+      createdAt: createdAt ?? this.createdAt,
     );
+  }
+
+  // Convert to Firestore map (following database schema)
+  Map<String, dynamic> toFirestoreMap() {
+    return {
+      'survey_response_id': surveyResponseId,
+      'survey_question_id': surveyQuestionId,
+      'answer_value': answerValue,
+      'selected_options': selectedOptions,
+      'created_at': createdAt.toIso8601String(),
+    };
   }
 
   Map<String, dynamic> toJson() {
@@ -91,6 +122,7 @@ class SurveyAnswer {
       'survey_question_id': surveyQuestionId,
       'answer_value': answerValue,
       'selected_options': selectedOptions,
+      'created_at': createdAt.toIso8601String(),
     };
   }
 
@@ -103,6 +135,7 @@ class SurveyAnswer {
       selectedOptions: json['selected_options'] != null
           ? List<String>.from(json['selected_options'])
           : null,
+      createdAt: DateTime.parse(json['created_at'] as String),
     );
   }
 }

@@ -631,7 +631,6 @@ class SurveyService {
       throw Exception('Failed to submit survey response: $error');
     }
   }
-
   /// Fetches survey responses for a specific survey
   Future<List<SurveyResponse>> fetchSurveyResponses(String surveyId) async {
     try {
@@ -640,13 +639,25 @@ class SurveyService {
         return [];
       }
 
-      final responsesSnapshot = await _firestore
-          .collection('survey_responses')
-          .where('survey_id', isEqualTo: surveyDoc.id)
-          .orderBy('submitted_at', descending: true)
-          .get();
-
-      final List<SurveyResponse> responses = [];
+      QuerySnapshot<Map<String, dynamic>> responsesSnapshot;
+      
+      try {
+        // Try with ordering first - requires composite index
+        responsesSnapshot = await _firestore
+            .collection('survey_responses')
+            .where('survey_id', isEqualTo: surveyDoc.id)
+            .orderBy('submitted_at', descending: true)
+            .get();
+      } catch (error) {
+        // If composite index doesn't exist, fall back to simple query
+        if (kDebugMode) {
+          print('Firestore composite index not found for survey responses, using simple query...');
+        }
+        responsesSnapshot = await _firestore
+            .collection('survey_responses')
+            .where('survey_id', isEqualTo: surveyDoc.id)
+            .get();
+      }      final List<SurveyResponse> responses = [];
 
       for (final responseDoc in responsesSnapshot.docs) {
         final responseData = responseDoc.data();
@@ -667,6 +678,7 @@ class SurveyService {
             selectedOptions: answerData['selected_options'] != null
                 ? List<String>.from(answerData['selected_options'])
                 : null,
+            createdAt: DateTime.parse(answerData['created_at'] as String),
           );
         }).toList();
 
@@ -676,8 +688,12 @@ class SurveyService {
           userId: responseData['user_id'] as String,
           submittedAt: DateTime.parse(responseData['submitted_at'] as String),
           answers: answers,
+          createdAt: DateTime.parse(responseData['created_at'] as String),
         ));
       }
+
+      // Sort responses by submitted_at in memory if we used the fallback query
+      responses.sort((a, b) => b.submittedAt.compareTo(a.submittedAt));
 
       return responses;
     } catch (error) {

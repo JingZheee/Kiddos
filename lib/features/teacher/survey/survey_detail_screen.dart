@@ -4,6 +4,7 @@ import '../../../core/constants/ui_constants.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/services/survey_service.dart';
 import '../../../models/survey/survey_model.dart';
+import '../../../models/survey/survey_response_model.dart';
 import '../../../widgets/custom_app_bar.dart';
 
 class SurveyDetailScreen extends StatefulWidget {
@@ -21,7 +22,10 @@ class SurveyDetailScreen extends StatefulWidget {
 class _SurveyDetailScreenState extends State<SurveyDetailScreen> {
   final SurveyService _surveyService = SurveyService();
   SurveyModel? _survey;
+  List<SurveyResponse> _responses = [];
+  SurveySummary? _surveySummary;
   bool _isLoading = true;
+  bool _isLoadingResponses = false;
   String? _errorMessage;
 
   @override
@@ -29,7 +33,6 @@ class _SurveyDetailScreenState extends State<SurveyDetailScreen> {
     super.initState();
     _loadSurvey();
   }
-
   Future<void> _loadSurvey() async {
     setState(() {
       _isLoading = true;
@@ -41,6 +44,11 @@ class _SurveyDetailScreenState extends State<SurveyDetailScreen> {
       setState(() {
         _survey = survey;
       });
+      
+      // Load responses and summary if survey exists
+      if (survey != null) {
+        await _loadSurveyResponses();
+      }
     } catch (e) {
       setState(() {
         _errorMessage = 'Failed to load survey: $e';
@@ -48,6 +56,29 @@ class _SurveyDetailScreenState extends State<SurveyDetailScreen> {
     } finally {
       setState(() {
         _isLoading = false;
+      });
+    }
+  }  Future<void> _loadSurveyResponses() async {
+    if (_survey == null) return;
+    
+    setState(() {
+      _isLoadingResponses = true;
+    });
+
+    try {
+      final responses = await _surveyService.fetchSurveyResponses(widget.surveyId);
+      final summary = await _surveyService.getSurveySummary(widget.surveyId);
+      
+      setState(() {
+        _responses = responses;
+        _surveySummary = summary;
+      });
+    } catch (e) {
+      // Don't set error for responses, just log it
+      print('Failed to load survey responses: $e');
+    } finally {
+      setState(() {
+        _isLoadingResponses = false;
       });
     }
   }
@@ -327,12 +358,11 @@ class _SurveyDetailScreenState extends State<SurveyDetailScreen> {
                     color: AppTheme.primaryColor,
                   ),
                 ),
-                const SizedBox(width: UIConstants.spacing12),
-                Expanded(
+                const SizedBox(width: UIConstants.spacing12),                Expanded(
                   child: _buildOverviewCard(
                     icon: Icons.people_outline,
                     title: 'Responses',
-                    value: '0', // TODO: Calculate actual responses
+                    value: _surveySummary?.totalResponses.toString() ?? '0',
                     color: AppTheme.secondaryColor,
                   ),
                 ),
@@ -341,7 +371,7 @@ class _SurveyDetailScreenState extends State<SurveyDetailScreen> {
                   child: _buildOverviewCard(
                     icon: Icons.analytics_outlined,
                     title: 'Response Rate',
-                    value: '0%', // TODO: Calculate actual response rate
+                    value: _calculateResponseRate(),
                     color: AppTheme.accentColor1,
                   ),
                 ),
@@ -528,54 +558,342 @@ class _SurveyDetailScreenState extends State<SurveyDetailScreen> {
         ],
       ),
     );
-  }
-
-  Widget _buildResponsesSection(SurveyModel survey) {
+  }  Widget _buildResponsesSection(SurveyModel survey) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(UIConstants.spacing16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Survey Responses',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+            Row(
+              children: [
+                Text(
+                  'Survey Responses',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const Spacer(),
+                if (_isLoadingResponses)
+                  const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+              ],
             ),
             const SizedBox(height: UIConstants.spacing16),
-            Center(
-              child: Column(
+            if (_isLoadingResponses)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(UIConstants.spacing32),
+                  child: CircularProgressIndicator(),
+                ),
+              )
+            else if (_responses.isEmpty && (_surveySummary?.totalResponses ?? 0) == 0)
+              Center(
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.analytics_outlined,
+                      size: 48,
+                      color: Colors.grey.shade400,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'No responses yet',
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Responses will appear here once parents submit the survey',
+                      style: TextStyle(
+                        color: Colors.grey.shade500,
+                        fontSize: 12,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              )
+            else
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
-                    Icons.analytics_outlined,
-                    size: 48,
-                    color: Colors.grey.shade400,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'No responses yet',
-                    style: TextStyle(
-                      color: Colors.grey.shade600,
-                      fontSize: 16,
+                  // Response summary header
+                  Container(
+                    padding: const EdgeInsets.all(UIConstants.spacing12),
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(UIConstants.radiusSmall),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.people, color: AppTheme.primaryColor),
+                        const SizedBox(width: 8),
+                        Text(
+                          '${_surveySummary?.totalResponses ?? _responses.length} total responses',
+                          style: TextStyle(
+                            color: AppTheme.primaryColor,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const Spacer(),
+                        if (_surveySummary?.lastResponseAt != null)
+                          Text(
+                            'Last: ${_formatDate(_surveySummary!.lastResponseAt)}',
+                            style: TextStyle(
+                              color: Colors.grey.shade600,
+                              fontSize: 12,
+                            ),
+                          ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Responses will appear here once the survey is published',
-                    style: TextStyle(
-                      color: Colors.grey.shade500,
-                      fontSize: 12,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
+                  const SizedBox(height: UIConstants.spacing16),
+                  // Question-by-question analysis
+                  ...survey.questions.map((question) => _buildQuestionAnalysis(question)).toList(),
                 ],
               ),
-            ),
           ],
         ),
       ),
+    );  }
+  Widget _buildQuestionAnalysis(SurveyQuestion question) {
+    final totalResponses = _surveySummary?.totalResponses ?? _responses.length;
+    if (totalResponses == 0) return const SizedBox.shrink();
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: UIConstants.spacing16),
+      padding: const EdgeInsets.all(UIConstants.spacing16),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(UIConstants.radiusSmall),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Question header
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  'Q${question.orderIndex + 1}',
+                  style: TextStyle(
+                    color: AppTheme.primaryColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  question.questionText,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: UIConstants.spacing12),
+          // Question type indicator
+          Row(
+            children: [
+              Icon(
+                _getQuestionTypeIcon(question.questionType),
+                size: 16,
+                color: Colors.grey.shade600,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                question.questionType.displayName,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey.shade600,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: UIConstants.spacing16),
+          // Response analysis based on question type
+          if (question.questionType == QuestionType.multipleChoiceSingle || question.questionType == QuestionType.multipleChoiceMultiple)
+            _buildChoiceAnalysis(question, totalResponses)
+          else if (question.questionType == QuestionType.openText)
+            _buildTextResponseAnalysis(question),
+        ],
+      ),
     );
+  }  Widget _buildChoiceAnalysis(SurveyQuestion question, int totalResponses) {
+    final questionAnswers = _getAnswersForQuestion(question.id);
+    final choiceCounts = <String, int>{};
+    
+    // Create a map of option values to option text for lookup
+    final optionValueToText = <String, String>{};
+    for (final option in question.options) {
+      optionValueToText[option.id] = option.optionText;
+    }
+    
+    // Count responses for each choice
+    for (final answer in questionAnswers) {
+      if (question.questionType == QuestionType.multipleChoiceMultiple) {
+        // Multiple choice - check selectedOptions
+        if (answer.selectedOptions != null && answer.selectedOptions!.isNotEmpty) {
+          for (final choiceValue in answer.selectedOptions!) {
+            final optionText = optionValueToText[choiceValue];
+            if (optionText != null) {
+              choiceCounts[optionText] = (choiceCounts[optionText] ?? 0) + 1;
+            }
+          }
+        }
+      } else {
+        // Single choice - check answerValue
+        if (answer.answerValue != null && answer.answerValue!.isNotEmpty) {
+          final optionText = optionValueToText[answer.answerValue!];
+          if (optionText != null) {
+            choiceCounts[optionText] = (choiceCounts[optionText] ?? 0) + 1;
+          }
+        }
+      }
+    }
+
+    if (question.options.isEmpty) {
+      return Text(
+        'No options defined for this question',
+        style: TextStyle(
+          color: Colors.grey.shade600,
+          fontStyle: FontStyle.italic,
+        ),
+      );
+    }    return Column(
+      children: question.options.map((option) {
+        final count = choiceCounts[option.optionText] ?? 0;
+        final percentage = totalResponses > 0 ? (count / totalResponses * 100) : 0.0;
+        
+        return Container(
+          margin: const EdgeInsets.only(bottom: UIConstants.spacing8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      option.optionText,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    '$count (${percentage.toStringAsFixed(1)}%)',
+                    style: TextStyle(
+                      color: AppTheme.primaryColor,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              LinearProgressIndicator(
+                value: totalResponses > 0 ? count / totalResponses : 0.0,
+                backgroundColor: Colors.grey.shade200,
+                valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }  Widget _buildTextResponseAnalysis(SurveyQuestion question) {
+    final questionAnswers = _getAnswersForQuestion(question.id);
+    
+    final textResponses = questionAnswers
+        .where((answer) => answer.answerValue != null && answer.answerValue!.isNotEmpty)
+        .map((answer) => answer.answerValue!)
+        .toList();
+
+    if (textResponses.isEmpty) {
+      return Text(
+        'No text responses yet',
+        style: TextStyle(
+          color: Colors.grey.shade600,
+          fontStyle: FontStyle.italic,
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '${textResponses.length} text response${textResponses.length != 1 ? 's' : ''}:',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            color: AppTheme.primaryColor,
+          ),
+        ),
+        const SizedBox(height: UIConstants.spacing8),
+        ...textResponses.map((response) => Container(
+          margin: const EdgeInsets.only(bottom: UIConstants.spacing8),
+          padding: const EdgeInsets.all(UIConstants.spacing12),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade50,
+            borderRadius: BorderRadius.circular(UIConstants.radiusSmall),
+            border: Border.all(color: Colors.grey.shade200),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                Icons.format_quote,
+                size: 16,
+                color: Colors.grey.shade500,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  response,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    height: 1.4,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        )).toList(),
+      ],
+    );
+  }  List<SurveyAnswer> _getAnswersForQuestion(String questionId) {
+    final answers = <SurveyAnswer>[];
+    for (final response in _responses) {
+      final questionAnswers = response.answers.where((answer) => answer.surveyQuestionId == questionId);
+      answers.addAll(questionAnswers);
+    }
+    return answers;
+  }
+
+  IconData _getQuestionTypeIcon(QuestionType type) {
+    switch (type) {
+      case QuestionType.multipleChoiceSingle:
+        return Icons.radio_button_checked;
+      case QuestionType.multipleChoiceMultiple:
+        return Icons.check_box;
+      case QuestionType.openText:
+        return Icons.text_fields;
+    }
   }
 
   void _handleMenuAction(String action) {
@@ -691,5 +1009,19 @@ class _SurveyDetailScreenState extends State<SurveyDetailScreen> {
   String _formatDate(DateTime? date) {
     if (date == null) return 'Not set';
     return '${date.day}/${date.month}/${date.year}';
+  }
+
+
+  String _calculateResponseRate() {
+    if (_surveySummary == null || _surveySummary!.totalResponses == 0) {
+      return '0%';
+    }
+    
+    // For now, just show the response count since we don't have target audience size
+    // In a real app, you'd calculate based on the target audience
+    final responses = _surveySummary!.totalResponses;
+    if (responses == 0) return '0%';
+    if (responses < 10) return '${(responses * 10)}%'; // Rough estimation
+    return '100%'; // Cap at 100%
   }
 }

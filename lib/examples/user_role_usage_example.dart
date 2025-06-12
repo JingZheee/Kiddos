@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:nursery_app/core/providers/user_role_provider.dart';
+import '../core/providers/user_role_provider.dart';
 import 'package:nursery_app/models/user/user_role_model.dart';
 
 /// Example screen showing how to use UserRoleProvider

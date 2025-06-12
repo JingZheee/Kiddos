@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:nursery_app/core/services/auth_services.dart';
 import 'package:nursery_app/models/user/user_model.dart' as app_user;
-import 'package:nursery_app/core/providers/user_role_provider.dart';
+import 'user_role_provider.dart';
 import 'package:nursery_app/models/user/user_role_model.dart';
 
 class UserProvider extends ChangeNotifier {
