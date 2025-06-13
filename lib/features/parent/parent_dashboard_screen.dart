@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:go_router/go_router.dart';
 import '../../core/constants/ui_constants.dart';
 import '../../core/routing/app_navigation.dart';
 import '../../core/theme/app_theme.dart';
@@ -58,7 +57,8 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
       body: _buildBody(),
       bottomNavigationBar: _buildBottomNavigationBar(),
     );
-  }  Widget _buildBody() {
+  }
+  Widget _buildBody() {
     switch (_selectedIndex) {
       case 0:
         return _buildHomeTab();
@@ -191,10 +191,11 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
       children: [
         QuickActionButton(
           icon: Icons.message_outlined,
-          label: 'Message',          onTap: () {
+          label: 'Message',
+          onTap: () {
             // TODO: Navigate to messages
             setState(() {
-              _selectedIndex = 2;
+              _selectedIndex = 3;
             });
           },
         ),
@@ -204,11 +205,12 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
           onTap: () {
             // TODO: Report absence
           },
-        ),        QuickActionButton(
-          icon: Icons.poll_outlined,
-          label: 'Surveys',
+        ),
+        QuickActionButton(
+          icon: Icons.admin_panel_settings_outlined,
+          label: 'Test Roles',
           onTap: () {
-            context.push('/parent/dashboard/surveys');
+            Navigator.pushNamed(context, '/example/user-roles');
           },
         ),
         QuickActionButton(
@@ -234,15 +236,7 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
           },
         ),
       ],
-    );
-  }
-
-  Widget _buildChildrenTab() {
-    // Placeholder for children tab
-    return const Center(
-      child: Text('Children Tab - Coming Soon'),
-    );
-  }
+    );  }
 
   Widget _buildActivitiesTab() {
     // Placeholder for activities tab
@@ -256,7 +250,9 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
     return const Center(
       child: Text('Messages Tab - Coming Soon'),
     );
-  }  Widget _buildBottomNavigationBar() {
+  }
+
+  Widget _buildBottomNavigationBar() {
     return BottomNavigationBar(
       currentIndex: _selectedIndex,
       onTap: (index) {
@@ -273,6 +269,11 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
           icon: Icon(Icons.home_outlined),
           activeIcon: Icon(Icons.home),
           label: 'Home',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.child_care_outlined),
+          activeIcon: Icon(Icons.child_care),
+          label: 'Children',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.calendar_today_outlined),
