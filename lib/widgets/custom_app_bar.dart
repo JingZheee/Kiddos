@@ -4,8 +4,7 @@ import 'package:nursery_app/core/routing/app_navigation.dart';
 import '../core/constants/ui_constants.dart';
 import '../core/theme/app_theme.dart';
 
-class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final String title;
+class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {  final String title;
   final List<Widget>? actions;
   final bool showBackButton;
   final VoidCallback? onBackPressed;
@@ -15,7 +14,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final double elevation;
   final bool centerTitle;
   final String? userRole;
-
+  final PreferredSizeWidget? bottom;
   const CustomAppBar({
     Key? key,
     required this.title,
@@ -28,11 +27,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.elevation = 0,
     this.centerTitle = true,
     this.userRole,
+    this.bottom,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return AppBar(
+  Widget build(BuildContext context) {    return AppBar(
       title: Text(
         title,
         style: TextStyle(
@@ -51,11 +50,13 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             )
           : leadingIcon,
       actions: actions,
+      bottom: bottom,
     );
   }
-
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => Size.fromHeight(
+    kToolbarHeight + (bottom?.preferredSize.height ?? 0.0)
+  );
 }
 
 class CustomScrollableAppBar extends StatelessWidget {
