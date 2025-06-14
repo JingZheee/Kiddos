@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:insta_image_viewer/insta_image_viewer.dart';
 import 'package:provider/provider.dart';
 import 'dart:io';
 import 'dart:convert';
-import '../../core/services/medication_adminitration_service.dart'
-    as medication_adminitration_service;
+import '../../core/services/medication_adminitration_service.dart';
 import '../../core/services/medication_service.dart';
 import '../../models/medications/medication_model.dart';
 import '../../widgets/custom_app_bar.dart';
@@ -23,9 +23,7 @@ class TeacherUpdateMedicationsScreen extends StatefulWidget {
 class _TeacherUpdateMedicationsScreenState
     extends State<TeacherUpdateMedicationsScreen> {
   final MedicationService _medicationService = MedicationService();
-  final medication_adminitration_service.MedicationAdministrationService
-      _medicationAdministrationService =
-      medication_adminitration_service.MedicationAdministrationService();
+  final MedicationAdministrationService _medicationAdministrationService = MedicationAdministrationService();
   final _notesController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   File? _selectedImage;
@@ -93,11 +91,7 @@ class _TeacherUpdateMedicationsScreenState
       // Read the image file as bytes
       final bytes = await _selectedImage!.readAsBytes();
 
-      // Encode the bytes to base64
-      final base64String = base64Encode(bytes);
-
-      // Add the data URI scheme prefix for images
-      return base64String;
+      return base64Encode(bytes);
     } catch (e) {
       setState(() {
         _errorMessage = 'Error encoding image: $e';
@@ -183,6 +177,23 @@ class _TeacherUpdateMedicationsScreenState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: SizedBox(
+                    width: 300,
+                    height: 300,
+                    child: InstaImageViewer(
+                      child: Image.memory(
+                        base64Decode(_medication!.photoUrl),
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
               // Medication Details
               Card(
                 child: Padding(
@@ -204,7 +215,7 @@ class _TeacherUpdateMedicationsScreenState
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
 
               // Status Update
               Card(
@@ -242,7 +253,7 @@ class _TeacherUpdateMedicationsScreenState
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
 
               // Notes
               Card(
@@ -268,7 +279,7 @@ class _TeacherUpdateMedicationsScreenState
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
 
               // Photo Upload
               Card(
@@ -308,7 +319,7 @@ class _TeacherUpdateMedicationsScreenState
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
 
               // Error Message
               if (_errorMessage != null)
@@ -331,7 +342,7 @@ class _TeacherUpdateMedicationsScreenState
                     ? const CircularProgressIndicator()
                     : const Text('Record Medication Administration'),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
             ],
           ),
         ),
