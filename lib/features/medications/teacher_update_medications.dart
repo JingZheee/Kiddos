@@ -97,7 +97,7 @@ class _TeacherUpdateMedicationsScreenState
       final base64String = base64Encode(bytes);
 
       // Add the data URI scheme prefix for images
-      return 'data:image/jpeg;base64,$base64String';
+      return base64String;
     } catch (e) {
       setState(() {
         _errorMessage = 'Error encoding image: $e';

@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/routing/app_navigation.dart';
@@ -95,32 +98,45 @@ class _ParentMedicationScreenState extends State<ParentMedicationsScreen> {
                   itemCount: medications.length,
                   itemBuilder: (context, index) {
                     final medication = medications[index];
-                    return Card(
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      child: ListTile(
-                        title: Text(medication.medicationName),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Dosage: ${medication.dosage}'),
-                            Text('Frequency: ${medication.frequency}'),
-                            Text('Status: ${medication.status.name}'),
-                          ],
+                    return InkWell(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Card(
+                          margin: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                          child: Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(4),
+                                  child: Image.memory(
+                                    base64Decode(medication.photoUrl!),
+                                    width: double.infinity,
+                                    height: 200,
+                                    fit: BoxFit.contain,
+                                  ),
+                                ),
+                              ),
+                              ListTile(
+                                title: Text(medication.medicationName),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Dosage: ${medication.dosage}'),
+                                    Text('Frequency: ${medication.frequency}'),
+                                    Text('Status: ${medication.status.name}'),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        trailing: Icon(
-                          medication.status == MedicationStatus.active
-                              ? Icons.medication
-                              : Icons.medication_outlined,
-                          color: medication.status == MedicationStatus.active
-                              ? Colors.green
-                              : Colors.grey,
-                        ),
-                        onTap: () {
-                          AppNavigation.goToParentEditMedication(
-                              context, medication.id);
-                        },
                       ),
+                      onTap: () {
+                        AppNavigation.goToParentEditMedication(
+                            context, medication.id);
+                      },
                     );
                   },
                 ),
