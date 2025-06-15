@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
-=======
 import 'package:provider/provider.dart';
->>>>>>> main
 import '../../core/constants/ui_constants.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/providers/user_provider.dart';
@@ -207,11 +204,9 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
           icon: Icons.note_alt_outlined,
           label: 'Take Leave',
           onTap: () {
-<<<<<<< HEAD
-            // TODO: Create leave request
-            context.push('parent/dashboard/leave-request');
-=======
-            // TODO: Report absence
+            context.pushNamed('parent-leave-request');
+            // Or alternatively:
+            // context.push('/parent/dashboard/leave');
           },
         ),
         QuickActionButton(
@@ -219,7 +214,6 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
           label: 'Test Roles',
           onTap: () {
             Navigator.pushNamed(context, '/example/user-roles');
->>>>>>> main
           },
         ),
         QuickActionButton(

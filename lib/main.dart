@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
 import 'core/theme/app_theme.dart';
 import 'core/providers/user_role_provider.dart';
 import 'core/providers/user_provider.dart';

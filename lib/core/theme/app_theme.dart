@@ -32,7 +32,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       primaryColor: primaryColor,
-      colorScheme: ColorScheme(
+      colorScheme: const ColorScheme(
         brightness: Brightness.light,
         primary: primaryColor,
         onPrimary: Colors.white,
@@ -40,8 +40,6 @@ class AppTheme {
         onSecondary: Colors.white,
         error: accentColor2,
         onError: Colors.white,
-        background: backgroundColor,
-        onBackground: textPrimaryColor,
         surface: surfaceColor,
         onSurface: textPrimaryColor,
       ),

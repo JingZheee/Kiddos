@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/ui_constants.dart';
 import '../../core/theme/app_theme.dart';
@@ -218,6 +219,13 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
           label: 'Photo',
           onTap: () {
             // TODO: Take photo
+          },
+        ),
+          QuickActionButton(
+          icon: Icons.note_alt_outlined,
+          label: 'Take Leave',
+          onTap: () {
+            context.pushNamed('teacher-leave');
           },
         ),
       ],

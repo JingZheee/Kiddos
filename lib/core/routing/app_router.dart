@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:nursery_app/features/teacher/leave/teacher_leave_request.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/user_provider.dart';
@@ -10,6 +11,9 @@ import '../../features/auth/forgot_password_screen.dart';
 import '../../features/parent/parent_dashboard_screen.dart';
 import '../../features/teacher/teacher_dashboard_screen.dart';
 import '../../examples/user_role_usage_example.dart';
+import '../../features/parent/leave/parent_leave_screen.dart';
+import '../../features/parent/leave/parent_request_leave.dart';
+import '../../features/teacher/leave/teacher_leave_request.dart';
 
 class AppRouter {
   static GoRouter createRouter({
@@ -97,12 +101,20 @@ class AppRouter {
           name: 'parent-dashboard',
           builder: (context, state) => const ParentDashboardScreen(),
           routes: [
-            // Add child routes for parent here
-            // GoRoute(
-            //   path: 'profile',
-            //   name: 'parent-profile',
-            //   builder: (context, state) => const ParentProfileScreen(),
-            // ),
+           GoRoute(
+            path: 'leave',
+            name: 'parent-leave-request',
+            builder: (context, state) => const ParentLeaveScreen(),
+            routes: [
+              // Add child routes for parent leave requests here
+              GoRoute(
+                path: 'add',
+                name: 'parent-request-leave',
+                builder: (context, state) => const ParentRequestLeave(),
+              ),
+              
+              ]
+           )
           ],
         ),
 
@@ -112,12 +124,11 @@ class AppRouter {
           name: 'teacher-dashboard',
           builder: (context, state) => const TeacherDashboardScreen(),
           routes: [
-            // Add child routes for teacher here
-            // GoRoute(
-            //   path: 'classes',
-            //   name: 'teacher-classes',
-            //   builder: (context, state) => const TeacherClassesScreen(),
-            // ),
+            GoRoute(
+              path:'teacher/leave',
+              name: 'teacher-leave',
+              builder: (context, state) => const TeacherLeaveRequest(),
+            )
           ],
         ),
 
