@@ -31,6 +31,16 @@ class ClassroomService {
     });
   }
 
+  // Read (all by kindergarten)
+  Stream<List<Classroom>> getClassroomsByKindergarten(String kindergartenId) {
+    return _classroomsCollection
+        .where('kindergartenId', isEqualTo: kindergartenId)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) => Classroom.fromFirestore(doc)).toList();
+    });
+  }
+
   // Update
   Future<void> updateClassroom(Classroom classroom) async {
     await _classroomsCollection

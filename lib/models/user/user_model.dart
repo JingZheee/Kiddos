@@ -61,7 +61,7 @@ class User {
       photoUrl: data['photoUrl'],
       roleId: data['roleId']?.toString() ?? '',
       role: data['role'] != null ? UserRole.fromMap(data['role']) : null,
-      timestamps: data['timestamps'] != null 
+      timestamps: data['timestamps'] != null
           ? Timestamps.fromJson(data['timestamps'])
           : _timestampsFromFirestore(data),
       kindergartenId: data['kindergartenId'],
@@ -73,7 +73,7 @@ class User {
     final createdAt = data['createdAt'];
     final updatedAt = data['updatedAt'];
     final now = DateTime.now();
-    
+
     return Timestamps(
       createdAt: createdAt is Timestamp ? createdAt.toDate() : now,
       updatedAt: updatedAt is Timestamp ? updatedAt.toDate() : now,

@@ -49,11 +49,10 @@ class _ClassroomSelectionScreenState extends State<ClassroomSelectionScreen> {
       _errorMessage = null;
     });
     try {
-      _classroomService.getClassrooms().listen((classrooms) {
-        _allClassrooms = classrooms
-            .where((classroom) =>
-                classroom.kindergartenId == widget.kindergartenId)
-            .toList();
+      _classroomService
+          .getClassroomsByKindergarten(widget.kindergartenId)
+          .listen((classrooms) {
+        _allClassrooms = classrooms;
         _filterClassrooms(); // Apply search filter
         setState(() {
           _isLoading = false;
