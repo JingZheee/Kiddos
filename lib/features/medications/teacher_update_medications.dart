@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:insta_image_viewer/insta_image_viewer.dart';
 import 'package:provider/provider.dart';
 import 'dart:io';
 import 'dart:convert';
-import '../../core/services/medication_adminitration_service.dart'
-    as medication_adminitration_service;
+import '../../core/services/medication_adminitration_service.dart';
 import '../../core/services/medication_service.dart';
 import '../../models/medications/medication_model.dart';
 import '../../widgets/custom_app_bar.dart';
@@ -23,9 +23,8 @@ class TeacherUpdateMedicationsScreen extends StatefulWidget {
 class _TeacherUpdateMedicationsScreenState
     extends State<TeacherUpdateMedicationsScreen> {
   final MedicationService _medicationService = MedicationService();
-  final medication_adminitration_service.MedicationAdministrationService
-      _medicationAdministrationService =
-      medication_adminitration_service.MedicationAdministrationService();
+  final MedicationAdministrationService _medicationAdministrationService =
+      MedicationAdministrationService();
   final _notesController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   File? _selectedImage;
@@ -93,11 +92,7 @@ class _TeacherUpdateMedicationsScreenState
       // Read the image file as bytes
       final bytes = await _selectedImage!.readAsBytes();
 
-      // Encode the bytes to base64
-      final base64String = base64Encode(bytes);
-
-      // Add the data URI scheme prefix for images
-      return 'data:image/jpeg;base64,$base64String';
+      return base64Encode(bytes);
     } catch (e) {
       setState(() {
         _errorMessage = 'Error encoding image: $e';
@@ -176,163 +171,162 @@ class _TeacherUpdateMedicationsScreenState
         showBackButton: true,
         userRole: 'teacher',
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Medication Details
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Medication Details',
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                      const SizedBox(height: 16),
-                      Text('Name: ${_medication!.medicationName}'),
-                      Text('Dosage: ${_medication!.dosage}'),
-                      Text('Frequency: ${_medication!.frequency}'),
-                      Text(
-                          'Current Status: ${_medication!.status.toString().split('.').last}'),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Status Update
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Update Status',
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                      const SizedBox(height: 16),
-                      DropdownButtonFormField<MedicationStatus>(
-                        value: _selectedStatus,
-                        decoration: const InputDecoration(
-                          // labelText: 'Status',
-                          border: OutlineInputBorder(),
-                        ),
-                        items: MedicationStatus.values.map((status) {
-                          return DropdownMenuItem(
-                            value: status,
-                            child: Text(status.toString().split('.').last),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          if (value != null) {
-                            setState(() {
-                              _selectedStatus = value;
-                            });
-                          }
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Notes
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Notes',
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _notesController,
-                        maxLines: 3,
-                        decoration: const InputDecoration(
-                          labelText: 'Add notes (optional)',
-                          border: OutlineInputBorder(),
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: SizedBox(
+                      width: 300,
+                      height: 300,
+                      child: InstaImageViewer(
+                        child: Image.memory(
+                          base64Decode(_medication!.photoUrl),
+                          fit: BoxFit.contain,
                         ),
                       ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 24),
+                const SizedBox(height: 16),
 
-              // Photo Upload
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Proof Photo',
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                      const SizedBox(height: 16),
-                      if (_selectedImage != null) ...[
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.file(
-                            _selectedImage!,
-                            height: 200,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                          ),
+                // Medication Details
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _medication!.medicationName,
+                          style: Theme.of(context).textTheme.titleLarge,
                         ),
                         const SizedBox(height: 16),
+                        Text('Dosage: ${_medication!.dosage}'),
+                        Text('Frequency: ${_medication!.frequency}'),
+                        Text(
+                            'Current Status: ${_medication!.status.toString().split('.').last}'),
                       ],
-                      ElevatedButton.icon(
-                        onPressed: _pickImage,
-                        icon: const Icon(Icons.camera_alt),
-                        label: Text(_selectedImage == null
-                            ? 'Take Photo'
-                            : 'Retake Photo'),
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size(double.infinity, 48),
-                        ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Status Update
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: DropdownButtonFormField<MedicationStatus>(
+                      value: _selectedStatus,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
                       ),
-                    ],
+                      items: MedicationStatus.values.map((status) {
+                        return DropdownMenuItem(
+                          value: status,
+                          child: Text(status.toString().split('.').last),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        if (value != null) {
+                          setState(() {
+                            _selectedStatus = value;
+                          });
+                        }
+                      },
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 24),
+                const SizedBox(height: 16),
 
-              // Error Message
-              if (_errorMessage != null)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: Text(
-                    _errorMessage!,
-                    style: const TextStyle(color: Colors.red),
+                // Notes
+                Card(
+                  child: TextFormField(
+                    controller: _notesController,
+                    maxLines: 3,
+                    decoration: const InputDecoration(
+                      labelText: 'Any observations or notes',
+                      border: OutlineInputBorder(),
+                    ),
                   ),
                 ),
+                const SizedBox(height: 16),
 
-              // Record Medication Administration Button
-              ElevatedButton(
-                onPressed: _isLoading ? null : _createMedicationAdministration,
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 48),
-                  backgroundColor: AppTheme.primaryColor,
+                // Photo Upload
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Proof Photo',
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        const SizedBox(height: 16),
+                        if (_selectedImage != null) ...[
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: InstaImageViewer(
+                              backgroundColor: Colors.black,
+                              child: Image.file(
+                                _selectedImage!,
+                                height: 200,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                        ],
+                        ElevatedButton.icon(
+                          onPressed: _pickImage,
+                          icon: const Icon(Icons.camera_alt),
+                          label: Text(_selectedImage == null
+                              ? 'Take Photo'
+                              : 'Retake Photo'),
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: const Size(double.infinity, 48),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-                child: _isLoading
-                    ? const CircularProgressIndicator()
-                    : const Text('Record Medication Administration'),
-              ),
-              const SizedBox(height: 24),
-            ],
+                const SizedBox(height: 16),
+
+                // Error Message
+                if (_errorMessage != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: Text(
+                      _errorMessage!,
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  ),
+
+                // Record Medication Administration Button
+                ElevatedButton(
+                  onPressed:
+                      _isLoading ? null : _createMedicationAdministration,
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 48),
+                    backgroundColor: AppTheme.primaryColor,
+                  ),
+                  child: _isLoading
+                      ? const CircularProgressIndicator()
+                      : const Text('Record Medication Administration'),
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
           ),
         ),
       ),
