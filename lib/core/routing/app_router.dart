@@ -31,6 +31,12 @@ import '../../features/teacher/announcements/announcement_management_screen.dart
 import '../../features/teacher/announcements/create_announcement_screen.dart';
 import '../../features/teacher/announcements/edit_announcement_screen.dart';
 import '../../models/announcement/announcement.dart';
+import '../../features/parent/announcements/announcements_screen.dart';
+import '../../features/parent/announcements/announcement_detail_screen.dart';
+import '../../features/teacher/announcements/announcement_management_screen.dart';
+import '../../features/teacher/announcements/create_announcement_screen.dart';
+import '../../features/teacher/announcements/edit_announcement_screen.dart';
+import '../../models/announcement/announcement.dart';
 
 class AppRouter {
   static GoRouter createRouter({
@@ -57,7 +63,7 @@ class AppRouter {
         }
 
         // If user is not authenticated and trying to access protected routes
-        if (!isAuthenticated) {
+        if (isInitialized && !isAuthenticated) {
           if (path != '/login' &&
               path != '/register' &&
               path != '/forgot-password') {
@@ -122,6 +128,22 @@ class AppRouter {
           name: 'parent-dashboard',
           builder: (context, state) => const ParentDashboardScreen(),
           routes: [
+              // Add child routes for parent here
+            GoRoute(
+              path: 'announcements',
+              name: 'parent-announcements',
+              builder: (context, state) => const AnnouncementsScreen(),
+              routes: [
+                GoRoute(
+                  path: 'detail',
+                  name: 'parent-announcement-detail',
+                  builder: (context, state) {
+                    final announcement = state.extra as Announcement;
+                    return AnnouncementDetailScreen(announcement: announcement);
+                  },
+                ),
+              ],
+            ),
             GoRoute(
               path: 'surveys',
               name: 'parent-surveys',
@@ -203,6 +225,30 @@ class AppRouter {
           name: 'teacher-dashboard',
           builder: (context, state) => const TeacherDashboardScreen(),
           routes: [
+            
+            GoRoute(
+              path: 'announcements',
+              name: 'teacher-announcements-management',
+              builder: (context, state) => const AnnouncementManagementScreen(),
+              routes: [
+                GoRoute(
+                  path: 'create',
+                  name: 'teacher-create-announcement',
+                  builder: (context, state) => const CreateAnnouncementScreen(),
+                ),
+                GoRoute(
+                  path: 'edit',
+                  name: 'teacher-edit-announcement',
+                  builder: (context, state) {
+                    // Assuming you'll pass the Announcement object for editing
+                    final announcement = state.extra as Announcement;
+                    return EditAnnouncementScreen(
+                        announcement:
+                            announcement); // Placeholder for EditAnnouncementScreen
+                  },
+                ),
+              ],
+            ),
             GoRoute(
               path: 'surveys',
               name: 'teacher-surveys',

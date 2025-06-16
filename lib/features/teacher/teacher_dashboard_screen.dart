@@ -8,6 +8,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/providers/user_provider.dart';
 import '../../widgets/custom_app_bar.dart';
 import '../../widgets/custom_card.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/services/kindergarten_service.dart';
 import '../../models/kindergarten/kindergarten.dart';
 import '../../features/teacher/classroom_selection_screen.dart';
@@ -84,6 +85,7 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
 
   void _signOut() async {
     final userProvider = context.read<UserProvider>();
+
 
     try {
       await userProvider.signOut();
@@ -208,6 +210,7 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
             margin: const EdgeInsets.only(bottom: UIConstants.spacing16),
           ),
 
+
           // Today's schedule
           InfoCard(
             title: 'Today\'s Schedule',
@@ -220,6 +223,7 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
             margin: const EdgeInsets.only(bottom: UIConstants.spacing16),
           ),
 
+
           // Pending tasks
           const Text(
             'Pending Tasks',
@@ -231,6 +235,7 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
           ),
           const SizedBox(height: UIConstants.spacing16),
           _buildPendingTasks(),
+
 
           const SizedBox(height: UIConstants.spacing24),
 
@@ -453,6 +458,9 @@ class TaskItem extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isCompleted ? AppTheme.accentColor1 : Colors.transparent,
                 border: Border.all(
+                  color: isCompleted
+                      ? AppTheme.accentColor1
+                      : AppTheme.textSecondaryColor,
                   color: isCompleted
                       ? AppTheme.accentColor1
                       : AppTheme.textSecondaryColor,
