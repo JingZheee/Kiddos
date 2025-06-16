@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:file_picker/file_picker.dart';
 import '../../../core/services/take_leave_service.dart';
 import '../../../models/leave/leave_request_model.dart';
+import '../../../widgets/custom_app_bar.dart';
+import '../../../core/theme/app_theme.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -101,7 +103,7 @@ class _ParentRequestLeaveState extends State<ParentRequestLeave> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFF667EEA),
+              primary: AppTheme.primaryColor,
               onPrimary: Colors.white,
               surface: Colors.white,
               onSurface: Color(0xFF2D3748),
@@ -149,7 +151,7 @@ class _ParentRequestLeaveState extends State<ParentRequestLeave> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFF667EEA),
+              primary: AppTheme.primaryColor,
               onPrimary: Colors.white,
               surface: Colors.white,
               onSurface: Color(0xFF2D3748),
@@ -352,34 +354,7 @@ class _ParentRequestLeaveState extends State<ParentRequestLeave> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF7FAFC),
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: const Color(0xFF667EEA),
-        foregroundColor: Colors.white,
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(Icons.add_circle_outline, size: 20),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                'Request Leave',
-                style: GoogleFonts.poppins(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
-      ),
+      appBar: _buildCustomAppBar(),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Form(
@@ -387,66 +362,7 @@ class _ParentRequestLeaveState extends State<ParentRequestLeave> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header Card
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF667EEA), Color(0xFF764BA2)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF667EEA).withOpacity(0.3),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: const Icon(
-                        Icons.assignment_outlined,
-                        color: Colors.white,
-                        size: 32,
-                      ),
-                    ),
-                    const SizedBox(width: 20),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'New Leave Request',
-                            style: GoogleFonts.poppins(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Submit a leave application for your child',
-                            style: GoogleFonts.poppins(
-                              color: Colors.white.withOpacity(0.9),
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
+             
               const SizedBox(height: 24),
 
               // Student Selection
@@ -460,7 +376,7 @@ class _ParentRequestLeaveState extends State<ParentRequestLeave> {
                       child: Row(
                         children: [
                           const CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF667EEA)),
+                            valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
                           ),
                           const SizedBox(width: 16),
                           Expanded(
@@ -517,7 +433,7 @@ class _ParentRequestLeaveState extends State<ParentRequestLeave> {
                           value: _selectedStudentId,
                           decoration: InputDecoration(
                             labelText: 'Select Student *',
-                            prefixIcon: const Icon(Icons.school_outlined, color: Color(0xFF667EEA)),
+                            prefixIcon: const Icon(Icons.school_outlined, color: AppTheme.primaryColor),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide.none,
@@ -528,7 +444,7 @@ class _ParentRequestLeaveState extends State<ParentRequestLeave> {
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(color: Color(0xFF667EEA), width: 2),
+                              borderSide: const BorderSide(color: AppTheme.primaryColor, width: 2),
                             ),
                             filled: true,
                             fillColor: const Color(0xFFF7FAFC),
@@ -548,7 +464,7 @@ class _ParentRequestLeaveState extends State<ParentRequestLeave> {
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                       decoration: BoxDecoration(
-                                        color: const Color(0xFF667EEA).withOpacity(0.1),
+                                        color: AppTheme.primaryColor.withOpacity(0.1),
                                         borderRadius: BorderRadius.circular(4),
                                       ),
                                       child: Text(
@@ -556,7 +472,7 @@ class _ParentRequestLeaveState extends State<ParentRequestLeave> {
                                             ? student['id']!.substring(0, 3)
                                             : student['id']!,
                                         style: GoogleFonts.poppins(
-                                          color: const Color(0xFF667EEA),
+                                          color: AppTheme.primaryColor,
                                           fontSize: 9,
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -595,7 +511,7 @@ class _ParentRequestLeaveState extends State<ParentRequestLeave> {
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                       decoration: BoxDecoration(
-                                        color: const Color(0xFF667EEA).withOpacity(0.1),
+                                        color: AppTheme.primaryColor.withOpacity(0.1),
                                         borderRadius: BorderRadius.circular(6),
                                       ),
                                       child: Text(
@@ -603,7 +519,7 @@ class _ParentRequestLeaveState extends State<ParentRequestLeave> {
                                             ? student['id']!.substring(0, 3)
                                             : student['id']!,
                                         style: GoogleFonts.poppins(
-                                          color: const Color(0xFF667EEA),
+                                          color: AppTheme.primaryColor,
                                           fontSize: 10,
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -680,7 +596,7 @@ class _ParentRequestLeaveState extends State<ParentRequestLeave> {
                     value: _selectedLeaveType,
                     decoration: InputDecoration(
                       labelText: 'Leave Type *',
-                      prefixIcon: const Icon(Icons.list_alt_outlined, color: Color(0xFF667EEA)),
+                      prefixIcon: const Icon(Icons.list_alt_outlined, color: AppTheme.primaryColor),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
@@ -691,7 +607,7 @@ class _ParentRequestLeaveState extends State<ParentRequestLeave> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFF667EEA), width: 2),
+                        borderSide: const BorderSide(color: AppTheme.primaryColor, width: 2),
                       ),
                       filled: true,
                       fillColor: const Color(0xFFF7FAFC),
@@ -825,7 +741,7 @@ class _ParentRequestLeaveState extends State<ParentRequestLeave> {
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [Color(0xFF667EEA), Color(0xFF764BA2)],
+                          colors: [AppTheme.primaryColor, Color(0xFF764BA2)],
                         ),
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -863,7 +779,7 @@ class _ParentRequestLeaveState extends State<ParentRequestLeave> {
                       hintText: 'Enter the reason for this leave request...',
                       prefixIcon: const Padding(
                         padding: EdgeInsets.only(bottom: 60),
-                        child: Icon(Icons.edit_outlined, color: Color(0xFF667EEA)),
+                        child: Icon(Icons.edit_outlined, color: AppTheme.primaryColor),
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -875,7 +791,7 @@ class _ParentRequestLeaveState extends State<ParentRequestLeave> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFF667EEA), width: 2),
+                        borderSide: const BorderSide(color: AppTheme.primaryColor, width: 2),
                       ),
                       filled: true,
                       fillColor: const Color(0xFFF7FAFC),
@@ -902,25 +818,25 @@ class _ParentRequestLeaveState extends State<ParentRequestLeave> {
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
                           border: Border.all(
-                            color: const Color(0xFF667EEA).withOpacity(0.3),
+                            color: AppTheme.primaryColor.withOpacity(0.3),
                             style: BorderStyle.solid,
                             width: 2,
                           ),
                           borderRadius: BorderRadius.circular(12),
-                          color: const Color(0xFF667EEA).withOpacity(0.05),
+                          color: AppTheme.primaryColor.withOpacity(0.05),
                         ),
                         child: Column(
                           children: [
                             Icon(
                               Icons.cloud_upload_outlined,
                               size: 32,
-                              color: const Color(0xFF667EEA).withOpacity(0.7),
+                              color: AppTheme.primaryColor.withOpacity(0.7),
                             ),
                             const SizedBox(height: 8),
                             Text(
                               'Upload Supporting Documents',
                               style: GoogleFonts.poppins(
-                                color: const Color(0xFF667EEA),
+                                color: AppTheme.primaryColor,
                                 fontWeight: FontWeight.w600,
                                 fontSize: 14,
                               ),
@@ -954,7 +870,7 @@ class _ParentRequestLeaveState extends State<ParentRequestLeave> {
                               children: [
                                 Icon(
                                   _getFileIcon(file.extension),
-                                  color: const Color(0xFF667EEA),
+                                  color: AppTheme.primaryColor,
                                   size: 20,
                                 ),
                                 const SizedBox(width: 12),
@@ -996,8 +912,8 @@ class _ParentRequestLeaveState extends State<ParentRequestLeave> {
                         OutlinedButton.icon(
                           onPressed: _pickFiles,
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: const Color(0xFF667EEA),
-                            side: const BorderSide(color: Color(0xFF667EEA)),
+                            foregroundColor: AppTheme.primaryColor,
+                            side: const BorderSide(color: AppTheme.primaryColor),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -1022,7 +938,7 @@ class _ParentRequestLeaveState extends State<ParentRequestLeave> {
                 child: ElevatedButton(
                   onPressed: _isSubmitting ? null : _submitLeaveRequest,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF667EEA),
+                    backgroundColor: AppTheme.primaryColor,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
@@ -1077,6 +993,16 @@ class _ParentRequestLeaveState extends State<ParentRequestLeave> {
     );
   }
 
+  PreferredSizeWidget _buildCustomAppBar() {
+    return CustomAppBar(
+      title: 'Request Leave',
+      userRole: 'parent',
+      backgroundColor: AppTheme.primaryColor,
+      titleColor: Colors.white,
+      
+    );
+  }
+
   Widget _buildSectionCard(String title, IconData icon, List<Widget> children) {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -1099,12 +1025,12 @@ class _ParentRequestLeaveState extends State<ParentRequestLeave> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF667EEA).withOpacity(0.1),
+                  color: AppTheme.primaryColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
                   icon,
-                  color: const Color(0xFF667EEA),
+                  color: AppTheme.primaryColor,
                   size: 20,
                 ),
               ),
