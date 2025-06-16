@@ -110,13 +110,18 @@ class AppNavigation {
 
   // Check if currently on a specific route
   static bool isCurrentRoute(BuildContext context, String routeName) {
-    final location = GoRouter.of(context).routerDelegate.currentConfiguration.uri.toString();
+    final location =
+        GoRouter.of(context).routerDelegate.currentConfiguration.uri.toString();
     return location == routeName;
   }
 
   // Get current route name
   static String getCurrentRoute(BuildContext context) {
-    return GoRouter.of(context).routerDelegate.currentConfiguration.uri.toString();
+    return GoRouter.of(context)
+        .routerDelegate
+        .currentConfiguration
+        .uri
+        .toString();
   }
 
   // Navigate back if possible, otherwise go to login
@@ -150,6 +155,16 @@ class AppNavigation {
     clearStackAndGo(context, '/login');
   }
 
+  static void goToParentStudentSelection(
+      BuildContext context, String kindergartenId) {
+    context.go('/parent/dashboard/student-selection/$kindergartenId');
+  }
+
+  static void goToTeacherClassroomSelection(
+      BuildContext context, String kindergartenId) {
+    context.go('/teacher/dashboard/classroom-selection/$kindergartenId');
+  }
+
   // Future: Add methods for nested routes when you implement them
   // Example for parent routes:
   // static void goToParentProfile(BuildContext context) {
@@ -168,4 +183,4 @@ class AppNavigation {
   // static void goToTeacherStudents(BuildContext context) {
   //   context.go('/teacher/dashboard/students');
   // }
-} 
+}

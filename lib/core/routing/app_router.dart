@@ -15,7 +15,8 @@ import '../../features/auth/register_screen.dart';
 import '../../features/auth/forgot_password_screen.dart';
 import '../../features/parent/parent_dashboard_screen.dart';
 import '../../features/teacher/teacher_dashboard_screen.dart';
-import '../../examples/user_role_usage_example.dart';
+import '../../features/parent/student_selection_screen.dart';
+import '../../features/teacher/classroom_selection_screen.dart';
 
 class AppRouter {
   static GoRouter createRouter({
@@ -27,7 +28,8 @@ class AppRouter {
       initialLocation: '/splash',
       refreshListenable: Listenable.merge([userProvider, userRoleProvider]),
       redirect: (context, state) {
-        final isInitialized = userRoleProvider.isInitialized && userProvider.isInitialized;
+        final isInitialized =
+            userRoleProvider.isInitialized && userProvider.isInitialized;
         final isAuthenticated = userProvider.isAuthenticated;
         final userModel = userProvider.userModel;
         final path = state.matchedLocation;
@@ -39,7 +41,9 @@ class AppRouter {
 
         // If user is not authenticated and trying to access protected routes
         if (isInitialized && !isAuthenticated) {
-          if (path != '/login' && path != '/register' && path != '/forgot-password') {
+          if (path != '/login' &&
+              path != '/register' &&
+              path != '/forgot-password') {
             return '/login';
           }
           return null; // Allow access to auth pages
@@ -109,6 +113,13 @@ class AppRouter {
             //   name: 'parent-profile',
             //   builder: (context, state) => const ParentProfileScreen(),
             // ),
+            GoRoute(
+              path: 'student-selection/:kindergartenId',
+              name: 'parent-student-selection',
+              builder: (context, state) => StudentSelectionScreen(
+                kindergartenId: state.pathParameters['kindergartenId']!,
+              ),
+            ),
           ],
         ),
 
@@ -171,6 +182,13 @@ class AppRouter {
             //   name: 'teacher-classes',
             //   builder: (context, state) => const TeacherClassesScreen(),
             // ),
+            GoRoute(
+              path: 'classroom-selection/:kindergartenId',
+              name: 'teacher-classroom-selection',
+              builder: (context, state) => ClassroomSelectionScreen(
+                kindergartenId: state.pathParameters['kindergartenId']!,
+              ),
+            ),
           ],
         ),
 
@@ -181,13 +199,6 @@ class AppRouter {
           builder: (context, state) => const Scaffold(
             body: Center(child: Text('Admin Dashboard - Coming Soon')),
           ),
-        ),
-
-        // Example routes
-        GoRoute(
-          path: '/example/user-roles',
-          name: 'user-roles-example',
-          builder: (context, state) => const UserRoleExampleScreen(),
         ),
 
         // Error routes
@@ -300,7 +311,7 @@ class UnauthorizedScreen extends StatelessWidget {
 // Error screen for routing errors
 class ErrorScreen extends StatelessWidget {
   final Exception? error;
-  
+
   const ErrorScreen({super.key, this.error});
 
   @override
@@ -342,4 +353,4 @@ class ErrorScreen extends StatelessWidget {
       ),
     );
   }
-} 
+}
