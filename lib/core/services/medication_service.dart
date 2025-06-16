@@ -62,6 +62,7 @@ class MedicationService {
     required String frequency,
     required String instructions,
     required MedicationStatus status,
+    required String photoUrl,
   }) async {
     try {
       await _firestore.collection(_collectionName).doc(medicationId).update({
@@ -71,6 +72,7 @@ class MedicationService {
         'instructions': instructions,
         'status': status.toString().split('.').last,
         'updatedAt': Timestamp.now(),
+        'photoUrl': photoUrl,
       });
     } catch (e) {
       throw Exception('Failed to update medication: $e');
@@ -94,6 +96,7 @@ class MedicationService {
     required String frequency,
     required String instructions,
     required String reportedByUserId,
+    required String photoUrl,
   }) async {
     try {
       final docRef = _firestore.collection(_collectionName).doc();
@@ -109,6 +112,7 @@ class MedicationService {
         reportedByUserId: reportedByUserId,
         status: MedicationStatus.active,
         createdAt: DateTime.now(),
+        photoUrl: photoUrl,
       );
 
       await docRef.set(medication.toFirestoreMap());

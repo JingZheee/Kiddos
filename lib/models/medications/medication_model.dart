@@ -19,6 +19,7 @@ class Medication {
   final MedicationStatus status;
   final DateTime createdAt;
   final DateTime? updatedAt;
+  final String photoUrl;
 
   Medication({
     required this.id,
@@ -33,6 +34,7 @@ class Medication {
     required this.status,
     required this.createdAt,
     this.updatedAt,
+    required this.photoUrl,
   });
 
   // Create from Firebase document
@@ -57,9 +59,11 @@ class Medication {
       updatedAt: data['updatedAt'] != null
           ? (data['updatedAt'] as Timestamp).toDate()
           : null,
+      photoUrl: data['photoUrl'],
     );
   }
 
+  // Convert to Firestore document
   Map<String, dynamic> toFirestoreMap() {
     return {
       'childId': childId,
@@ -73,6 +77,7 @@ class Medication {
       'status': status.toString().split('.').last,
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': updatedAt != null ? Timestamp.fromDate(updatedAt!) : null,
+      'photoUrl': photoUrl,
     };
   }
 }

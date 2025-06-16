@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import '../../features/medications/teacher_child_medications.dart';
 import '../../features/medications/teacher_update_medications.dart';
 import '../../features/medications/parent_add_medication.dart';
 import '../../features/medications/parent_edit_medication.dart';
@@ -163,13 +162,6 @@ class AppRouter {
           builder: (context, state) => const TeacherMedicationScreen(),
           routes: [
             // Add child routes for teacher here
-            GoRoute(
-              path: 'child/:childId',
-              name: 'teacher-child-medications',
-              builder: (context, state) => TeacherChildMedicationsScreen(
-                childId: state.pathParameters['childId']!,
-              ),
-            ),
             GoRoute(
               path: 'edit/:medicationId',
               name: 'teacher-edit-medication',
