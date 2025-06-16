@@ -86,7 +86,6 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
   void _signOut() async {
     final userProvider = context.read<UserProvider>();
 
-
     try {
       await userProvider.signOut();
       // No need for manual navigation - AuthenticationWrapper will handle it
@@ -210,7 +209,6 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
             margin: const EdgeInsets.only(bottom: UIConstants.spacing16),
           ),
 
-
           // Today's schedule
           InfoCard(
             title: 'Today\'s Schedule',
@@ -223,7 +221,6 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
             margin: const EdgeInsets.only(bottom: UIConstants.spacing16),
           ),
 
-
           // Pending tasks
           const Text(
             'Pending Tasks',
@@ -235,7 +232,6 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
           ),
           const SizedBox(height: UIConstants.spacing16),
           _buildPendingTasks(),
-
 
           const SizedBox(height: UIConstants.spacing24),
 
@@ -458,9 +454,6 @@ class TaskItem extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isCompleted ? AppTheme.accentColor1 : Colors.transparent,
                 border: Border.all(
-                  color: isCompleted
-                      ? AppTheme.accentColor1
-                      : AppTheme.textSecondaryColor,
                   color: isCompleted
                       ? AppTheme.accentColor1
                       : AppTheme.textSecondaryColor,
