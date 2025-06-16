@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'core/theme/app_theme.dart';
 import 'core/providers/user_role_provider.dart';
 import 'core/providers/user_provider.dart';
+import 'core/providers/survey_provider.dart';
 import 'core/routing/app_router.dart';
 import 'package:nursery_app/utils/seed_data.dart';
 
@@ -28,13 +29,11 @@ void main() async {
 }
 
 class NurseryApp extends StatelessWidget {
-  const NurseryApp({super.key});
-
-  @override
+  const NurseryApp({super.key});  @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
+    return MultiProvider(      providers: [
         ChangeNotifierProvider(create: (_) => UserRoleProvider()),
+        ChangeNotifierProvider(create: (_) => SurveyProvider()),
         ChangeNotifierProxyProvider<UserRoleProvider, UserProvider>(
           create: (context) => UserProvider(context.read<UserRoleProvider>()),
           update: (_, userRoleProvider, userProvider) =>

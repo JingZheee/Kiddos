@@ -149,7 +149,6 @@ class AppNavigation {
     }
     context.go(route);
   }
-
   // Common navigation patterns
   static void logoutAndGoToLogin(BuildContext context) {
     clearStackAndGo(context, '/login');
@@ -163,6 +162,24 @@ class AppNavigation {
   static void goToTeacherClassroomSelection(
       BuildContext context, String kindergartenId) {
     context.go('/teacher/dashboard/classroom-selection/$kindergartenId');
+  }
+
+  // Parent survey navigation methods
+  static void goToParentSurveys(BuildContext context) {
+    context.go('/parent/dashboard/surveys');
+  }
+
+  static void goToParentSurveyForm(BuildContext context, String surveyId) {
+    context.go('/parent/dashboard/surveys/form/$surveyId');
+  }
+
+  // Push navigation for parent surveys
+  static void pushParentSurveys(BuildContext context) {
+    context.push('/parent/dashboard/surveys');
+  }
+
+  static void pushParentSurveyForm(BuildContext context, String surveyId) {
+    context.push('/parent/dashboard/surveys/form/$surveyId');
   }
 
   // Future: Add methods for nested routes when you implement them

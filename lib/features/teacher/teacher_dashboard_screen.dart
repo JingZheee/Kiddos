@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/constants/ui_constants.dart';
 import '../../core/routing/app_navigation.dart';
 import '../../core/theme/app_theme.dart';
@@ -305,7 +306,6 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
       ],
     );
   }
-
   Widget _buildQuickActions() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -319,15 +319,11 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
               _selectedIndex = 2;
             });
           },
-        ),
-        QuickActionButton(
-          icon: Icons.message_outlined,
-          label: 'Message',
+        ),        QuickActionButton(
+          icon: Icons.poll_outlined,
+          label: 'Surveys',
           onTap: () {
-            // TODO: Send new message
-            setState(() {
-              _selectedIndex = 3;
-            });
+            context.push('/teacher/dashboard/surveys');
           },
         ),
         QuickActionButton(
@@ -338,10 +334,13 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
           },
         ),
         QuickActionButton(
-          icon: Icons.photo_camera_outlined,
-          label: 'Photo',
+          icon: Icons.message_outlined,
+          label: 'Message',
           onTap: () {
-            // TODO: Take photo
+            // TODO: Send new message
+            setState(() {
+              _selectedIndex = 3;
+            });
           },
         ),
         QuickActionButton(

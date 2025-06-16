@@ -122,16 +122,13 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
       bottomNavigationBar: _buildBottomNavigationBar(),
     );
   }
-
   Widget _buildBody() {
     switch (_selectedIndex) {
       case 0:
         return _buildHomeTab();
       case 1:
-        return _buildChildrenTab();
-      case 2:
         return _buildActivitiesTab();
-      case 3:
+      case 2:
         return _buildMessagesTab();
       default:
         return _buildHomeTab();
@@ -361,15 +358,7 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
           },
         ),
       ],
-    );
-  }
-
-  Widget _buildChildrenTab() {
-    // Placeholder for children tab
-    return const Center(
-      child: Text('Children Tab - Coming Soon'),
-    );
-  }
+    );  }
 
   Widget _buildActivitiesTab() {
     // Placeholder for activities tab
