@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:nursery_app/core/routing/app_navigation.dart';
 import '../core/constants/ui_constants.dart';
 import '../core/theme/app_theme.dart';
 
@@ -12,6 +14,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Color? titleColor;
   final double elevation;
   final bool centerTitle;
+  final String? userRole;
 
   const CustomAppBar({
     Key? key,
@@ -24,6 +27,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.titleColor,
     this.elevation = 0,
     this.centerTitle = true,
+    this.userRole,
   }) : super(key: key);
 
   @override
@@ -40,10 +44,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: centerTitle,
       elevation: elevation,
       backgroundColor: backgroundColor ?? AppTheme.primaryColor,
-      leading: showBackButton
+      leading: showBackButton && userRole != null
           ? IconButton(
               icon: const Icon(Icons.arrow_back_ios, size: 20),
-              onPressed: onBackPressed ?? () => Navigator.pop(context),
+              onPressed: onBackPressed ?? () => AppNavigation.goBackOrDashboard(context, userRole!),
             )
           : leadingIcon,
       actions: actions,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/ui_constants.dart';
+import '../../core/routing/app_navigation.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/providers/user_provider.dart';
 import '../../widgets/custom_app_bar.dart';
@@ -307,8 +308,11 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
   }
 
   Widget _buildQuickActions() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
+    return GridView.count(
+      crossAxisCount: 4,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      childAspectRatio: 0.76, // Adjust the aspect ratio to provide more space for text
       children: [
         QuickActionButton(
           icon: Icons.message_outlined,
@@ -346,6 +350,14 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
           label: 'Pick Up',
           onTap: () {
             // TODO: Schedule pickup
+          },
+        ),
+        QuickActionButton(
+          icon: Icons.medication_outlined,
+          label: 'Medications',
+          onTap: () {
+            // TODO: Navigate to medications
+            AppNavigation.goToParentMedications(context);
           },
         ),
       ],
