@@ -32,6 +32,27 @@ class AppNavigation {
     context.go('/admin/dashboard');
   }
 
+  // Medications routes
+  static void goToParentMedications(BuildContext context) {
+    context.go('/parent/medications');
+  }
+
+  static void goToParentAddMedication(BuildContext context) {
+    context.go('/parent/medications/add');
+  }
+
+  static void goToParentEditMedication(BuildContext context, String medicationId) {
+    context.go('/parent/medications/edit/$medicationId');
+  }
+
+  static void goToTeacherMedications(BuildContext context) {
+    context.go('/teacher/medications');
+  }
+
+  static void goToTeacherEditMedication(BuildContext context, String medicationId) {
+    context.go('/teacher/medications/edit/$medicationId');
+  }
+
   // Utility routes
   static void goToUserRoleExample(BuildContext context) {
     context.go('/example/user-roles');
@@ -89,13 +110,18 @@ class AppNavigation {
 
   // Check if currently on a specific route
   static bool isCurrentRoute(BuildContext context, String routeName) {
-    final location = GoRouter.of(context).routerDelegate.currentConfiguration.uri.toString();
+    final location =
+        GoRouter.of(context).routerDelegate.currentConfiguration.uri.toString();
     return location == routeName;
   }
 
   // Get current route name
   static String getCurrentRoute(BuildContext context) {
-    return GoRouter.of(context).routerDelegate.currentConfiguration.uri.toString();
+    return GoRouter.of(context)
+        .routerDelegate
+        .currentConfiguration
+        .uri
+        .toString();
   }
 
   // Navigate back if possible, otherwise go to login
@@ -123,10 +149,37 @@ class AppNavigation {
     }
     context.go(route);
   }
-
   // Common navigation patterns
   static void logoutAndGoToLogin(BuildContext context) {
     clearStackAndGo(context, '/login');
+  }
+
+  static void goToParentStudentSelection(
+      BuildContext context, String kindergartenId) {
+    context.go('/parent/dashboard/student-selection/$kindergartenId');
+  }
+
+  static void goToTeacherClassroomSelection(
+      BuildContext context, String kindergartenId) {
+    context.go('/teacher/dashboard/classroom-selection/$kindergartenId');
+  }
+
+  // Parent survey navigation methods
+  static void goToParentSurveys(BuildContext context) {
+    context.go('/parent/dashboard/surveys');
+  }
+
+  static void goToParentSurveyForm(BuildContext context, String surveyId) {
+    context.go('/parent/dashboard/surveys/form/$surveyId');
+  }
+
+  // Push navigation for parent surveys
+  static void pushParentSurveys(BuildContext context) {
+    context.push('/parent/dashboard/surveys');
+  }
+
+  static void pushParentSurveyForm(BuildContext context, String surveyId) {
+    context.push('/parent/dashboard/surveys/form/$surveyId');
   }
 
   // Future: Add methods for nested routes when you implement them
@@ -147,4 +200,4 @@ class AppNavigation {
   // static void goToTeacherStudents(BuildContext context) {
   //   context.go('/teacher/dashboard/students');
   // }
-} 
+}

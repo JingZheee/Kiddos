@@ -3,10 +3,18 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/ui_constants.dart';
+import '../../core/routing/app_navigation.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/providers/user_provider.dart';
 import '../../widgets/custom_app_bar.dart';
 import '../../widgets/custom_card.dart';
+import '../../core/services/kindergarten_service.dart';
+import '../../models/kindergarten/kindergarten.dart';
+import '../../features/parent/student_selection_screen.dart';
+import '../../features/teacher/classroom_selection_screen.dart';
+import '../../core/services/student_parent_service.dart';
+import '../../core/services/student_service.dart';
+import '../../models/student/student.dart';
 
 class ParentDashboardScreen extends StatefulWidget {
   const ParentDashboardScreen({super.key});
@@ -17,10 +25,67 @@ class ParentDashboardScreen extends StatefulWidget {
 
 class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
   int _selectedIndex = 0;
+  Kindergarten? _kindergarten;
+  final KindergartenService _kindergartenService = KindergartenService();
+  List<Student> _registeredStudents = [];
+  bool _isLoadingStudents = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchKindergarten();
+    _fetchRegisteredStudents();
+  }
+
+  Future<void> _fetchKindergarten() async {
+    final userProvider = context.read<UserProvider>();
+    final kindergartenId = userProvider.userModel?.kindergartenId;
+
+    if (kindergartenId != null) {
+      _kindergartenService.getKindergarten(kindergartenId).then((kg) {
+        if (mounted) {
+          setState(() {
+            _kindergarten = kg;
+          });
+        }
+      });
+    }
+  }
+
+  Future<void> _fetchRegisteredStudents() async {
+    setState(() {
+      _isLoadingStudents = true;
+    });
+    final userProvider = context.read<UserProvider>();
+    final parentId = userProvider.userModel?.id;
+    if (parentId == null) {
+      setState(() {
+        _isLoadingStudents = false;
+      });
+      return;
+    }
+    final studentParentService = StudentParentService();
+    final studentService = StudentService();
+    // Get all StudentParent records for this parent
+    final allStudentParents =
+        await studentParentService.getStudentParents().first;
+    final myStudentParents =
+        allStudentParents.where((sp) => sp.parentId == parentId).toList();
+    // Fetch all students for these studentIds
+    List<Student> students = [];
+    for (final sp in myStudentParents) {
+      final student = await studentService.getStudent(sp.studentId);
+      if (student != null) students.add(student);
+    }
+    setState(() {
+      _registeredStudents = students;
+      _isLoadingStudents = false;
+    });
+  }
 
   void _signOut() async {
     final userProvider = context.read<UserProvider>();
-    
+
     try {
       await userProvider.signOut();
       // No need for manual navigation - AuthenticationWrapper will handle it
@@ -59,16 +124,13 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
       bottomNavigationBar: _buildBottomNavigationBar(),
     );
   }
-
   Widget _buildBody() {
     switch (_selectedIndex) {
       case 0:
         return _buildHomeTab();
       case 1:
-        return _buildChildrenTab();
-      case 2:
         return _buildActivitiesTab();
-      case 3:
+      case 2:
         return _buildMessagesTab();
       default:
         return _buildHomeTab();
@@ -81,14 +143,26 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Good Morning, Parent',
-            style: TextStyle(
+          Text(
+            'Good Morning, ' +
+                (context.read<UserProvider>().userModel?.userName ?? 'Parent') +
+                '!',
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
               color: AppTheme.textPrimaryColor,
             ),
           ),
+          const SizedBox(height: UIConstants.spacing8),
+          if (_kindergarten != null)
+            Text(
+              'Kindergarten: ${_kindergarten!.name}',
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: AppTheme.textSecondaryColor,
+              ),
+            ),
           const SizedBox(height: UIConstants.spacing8),
           const Text(
             'Here\'s what\'s happening today',
@@ -98,7 +172,53 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
             ),
           ),
           const SizedBox(height: UIConstants.spacing24),
-          
+          // Add navigation button for student selection if kindergartenId exists
+          Builder(
+            builder: (context) {
+              final kindergartenId =
+                  context.read<UserProvider>().userModel?.kindergartenId;
+              if (kindergartenId == null) return const SizedBox.shrink();
+              return ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => StudentSelectionScreen(
+                          kindergartenId: kindergartenId),
+                    ),
+                  );
+                },
+                child: const Text('Go to Student Selection'),
+              );
+            },
+          ),
+          const SizedBox(height: UIConstants.spacing24),
+          // Registered students section
+          const Text(
+            'Registered Students',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: AppTheme.textPrimaryColor,
+            ),
+          ),
+          const SizedBox(height: 8),
+          _isLoadingStudents
+              ? const Center(child: CircularProgressIndicator())
+              : _registeredStudents.isEmpty
+                  ? const Text('No students registered yet.')
+                  : Column(
+                      children: _registeredStudents
+                          .map((student) => ListTile(
+                                leading: CircleAvatar(
+                                  child: Text(student.firstName[0]),
+                                ),
+                                title: Text(
+                                    '${student.firstName} ${student.lastName}'),
+                                subtitle: Text('ID: ${student.id}'),
+                              ))
+                          .toList(),
+                    ),
+          const SizedBox(height: UIConstants.spacing24),
           // Child status card
           StatusCard(
             title: 'Emily\'s Status',
@@ -110,7 +230,7 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
             },
             margin: const EdgeInsets.only(bottom: UIConstants.spacing16),
           ),
-          
+
           // Today's schedule
           InfoCard(
             title: 'Today\'s Schedule',
@@ -121,7 +241,7 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
             },
             margin: const EdgeInsets.only(bottom: UIConstants.spacing16),
           ),
-          
+
           // Recent activities
           const Text(
             'Recent Activities',
@@ -133,9 +253,9 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
           ),
           const SizedBox(height: UIConstants.spacing16),
           _buildRecentActivities(),
-          
+
           const SizedBox(height: UIConstants.spacing24),
-          
+
           // Quick actions
           const Text(
             'Quick Actions',
@@ -187,8 +307,11 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
   }
 
   Widget _buildQuickActions() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
+    return GridView.count(
+      crossAxisCount: 4,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      childAspectRatio: 0.76, // Adjust the aspect ratio to provide more space for text
       children: [
         QuickActionButton(
           icon: Icons.message_outlined,
@@ -230,16 +353,16 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
             // TODO: Schedule pickup
           },
         ),
+        QuickActionButton(
+          icon: Icons.medication_outlined,
+          label: 'Medications',
+          onTap: () {
+            // TODO: Navigate to medications
+            AppNavigation.goToParentMedications(context);
+          },
+        ),
       ],
-    );
-  }
-
-  Widget _buildChildrenTab() {
-    // Placeholder for children tab
-    return const Center(
-      child: Text('Children Tab - Coming Soon'),
-    );
-  }
+    );  }
 
   Widget _buildActivitiesTab() {
     // Placeholder for activities tab
