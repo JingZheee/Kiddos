@@ -154,7 +154,7 @@ class _TeacherLeaveRequestState extends State<TeacherLeaveRequest> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF667EEA).withOpacity(0.1),
+                                color: AppTheme.primaryColor.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
@@ -162,7 +162,7 @@ class _TeacherLeaveRequestState extends State<TeacherLeaveRequest> {
                                 style: GoogleFonts.poppins(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
-                                  color: const Color(0xFF667EEA),
+                                  color: AppTheme.primaryColor,
                                 ),
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -566,7 +566,7 @@ class _TeacherLeaveRequestState extends State<TeacherLeaveRequest> {
                             child: Icon(
                               Icons.visibility,
                               size: 16,
-                              color: const Color(0xFF667EEA),
+                              color: AppTheme.primaryColor,
                             ),
                           ),
                         ),
@@ -707,14 +707,14 @@ class _TeacherLeaveRequestState extends State<TeacherLeaveRequest> {
           Icon(
             _getFileIcon(document.docName ?? ''),
             size: 32,
-            color: const Color(0xFF667EEA),
+            color: AppTheme.primaryColor,
           ),
           const SizedBox(height: 4),
           Text(
             _getFileExtension(document.docName ?? '').toUpperCase(),
             style: GoogleFonts.poppins(
               fontSize: 10,
-              color: const Color(0xFF667EEA),
+              color: AppTheme.primaryColor,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -946,7 +946,7 @@ class _TeacherLeaveRequestState extends State<TeacherLeaveRequest> {
             ElevatedButton(
               onPressed: () => setState(() {}),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF667EEA),
+                backgroundColor: AppTheme.primaryColor,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -973,7 +973,7 @@ class _TeacherLeaveRequestState extends State<TeacherLeaveRequest> {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  const Color(0xFF667EEA).withOpacity(0.1),
+                  AppTheme.primaryColor.withOpacity(0.1),
                   const Color(0xFF764BA2).withOpacity(0.1),
                 ],
               ),
@@ -1059,7 +1059,7 @@ class _TeacherLeaveRequestState extends State<TeacherLeaveRequest> {
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: isSelected 
-                  ? const Color(0xFF667EEA) 
+                  ? AppTheme.primaryColor 
                   : const Color(0xFFE2E8F0),
               width: isSelected ? 2 : 1,
             ),
@@ -1102,7 +1102,7 @@ class _TeacherLeaveRequestState extends State<TeacherLeaveRequest> {
                                   ? Icons.check_circle
                                   : Icons.radio_button_unchecked,
                               color: isSelected
-                                  ? const Color(0xFF667EEA)
+                                  ? AppTheme.primaryColor
                                   : const Color(0xFF9CA3AF),
                               size: 24,
                             ),
@@ -1167,7 +1167,7 @@ class _TeacherLeaveRequestState extends State<TeacherLeaveRequest> {
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [
-                                const Color(0xFF667EEA).withOpacity(0.1),
+                                AppTheme.primaryColor.withOpacity(0.1),
                                 const Color(0xFF764BA2).withOpacity(0.1),
                               ],
                             ),
@@ -1308,7 +1308,7 @@ class _TeacherLeaveRequestState extends State<TeacherLeaveRequest> {
                               borderRadius: BorderRadius.circular(20),
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color(0xFF667EEA).withOpacity(0.3),
+                                  color: AppTheme.primaryColor.withOpacity(0.3),
                                   blurRadius: 8,
                                   offset: const Offset(0, 2),
                                 ),

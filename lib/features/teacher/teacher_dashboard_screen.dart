@@ -308,8 +308,11 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
     );
   }
   Widget _buildQuickActions() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
+    return GridView.count(
+      crossAxisCount: 4,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      childAspectRatio: 0.76, //
       children: [
         QuickActionButton(
           icon: Icons.add_task_outlined,
