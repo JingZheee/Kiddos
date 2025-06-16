@@ -7,6 +7,12 @@ import '../../core/theme/app_theme.dart';
 import '../../core/providers/user_provider.dart';
 import '../../widgets/custom_app_bar.dart';
 import '../../widgets/custom_card.dart';
+import '../../core/services/kindergarten_service.dart';
+import '../../models/kindergarten/kindergarten.dart';
+import '../../features/teacher/classroom_selection_screen.dart';
+import '../../core/services/classroom_teacher_service.dart';
+import '../../core/services/classroom_service.dart';
+import '../../models/classroom/classroom.dart';
 
 class TeacherDashboardScreen extends StatefulWidget {
   const TeacherDashboardScreen({super.key});
@@ -17,10 +23,67 @@ class TeacherDashboardScreen extends StatefulWidget {
 
 class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
   int _selectedIndex = 0;
+  Kindergarten? _kindergarten;
+  final KindergartenService _kindergartenService = KindergartenService();
+  List<Classroom> _registeredClassrooms = [];
+  bool _isLoadingClassrooms = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchKindergarten();
+    _fetchRegisteredClassrooms();
+  }
+
+  Future<void> _fetchKindergarten() async {
+    final userProvider = context.read<UserProvider>();
+    final kindergartenId = userProvider.userModel?.kindergartenId;
+
+    if (kindergartenId != null) {
+      _kindergartenService.getKindergarten(kindergartenId).then((kg) {
+        if (mounted) {
+          setState(() {
+            _kindergarten = kg;
+          });
+        }
+      });
+    }
+  }
+
+  Future<void> _fetchRegisteredClassrooms() async {
+    setState(() {
+      _isLoadingClassrooms = true;
+    });
+    final userProvider = context.read<UserProvider>();
+    final teacherId = userProvider.userModel?.id;
+    if (teacherId == null) {
+      setState(() {
+        _isLoadingClassrooms = false;
+      });
+      return;
+    }
+    final classroomTeacherService = ClassroomTeacherService();
+    final classroomService = ClassroomService();
+    // Get all ClassroomTeacher records for this teacher
+    final allClassroomTeachers =
+        await classroomTeacherService.getClassroomTeachers().first;
+    final myClassroomTeachers =
+        allClassroomTeachers.where((ct) => ct.teacherId == teacherId).toList();
+    // Fetch all classrooms for these classroomIds
+    List<Classroom> classrooms = [];
+    for (final ct in myClassroomTeachers) {
+      final classroom = await classroomService.getClassroom(ct.classroomId);
+      if (classroom != null) classrooms.add(classroom);
+    }
+    setState(() {
+      _registeredClassrooms = classrooms;
+      _isLoadingClassrooms = false;
+    });
+  }
 
   void _signOut() async {
     final userProvider = context.read<UserProvider>();
-    
+
     try {
       await userProvider.signOut();
       // No need for manual navigation - AuthenticationWrapper will handle it
@@ -81,14 +144,27 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Hello, Teacher',
-            style: TextStyle(
+          Text(
+            'Hello, ' +
+                (context.read<UserProvider>().userModel?.userName ??
+                    'Teacher') +
+                '!',
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
               color: AppTheme.textPrimaryColor,
             ),
           ),
+          const SizedBox(height: UIConstants.spacing8),
+          if (_kindergarten != null)
+            Text(
+              'Kindergarten: ${_kindergarten!.name}',
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: AppTheme.textSecondaryColor,
+              ),
+            ),
           const SizedBox(height: UIConstants.spacing8),
           const Text(
             'Welcome to your classroom dashboard',
@@ -98,7 +174,27 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
             ),
           ),
           const SizedBox(height: UIConstants.spacing24),
-          
+          // Add navigation button for classroom selection if kindergartenId exists
+          Builder(
+            builder: (context) {
+              final kindergartenId =
+                  context.read<UserProvider>().userModel?.kindergartenId;
+              if (kindergartenId == null) return const SizedBox.shrink();
+              return ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => ClassroomSelectionScreen(
+                          kindergartenId: kindergartenId),
+                    ),
+                  );
+                },
+                child: const Text('Go to Classroom Selection'),
+              );
+            },
+          ),
+          const SizedBox(height: UIConstants.spacing24),
+
           // Class summary card
           InfoCard(
             title: 'Class Summary',
@@ -110,7 +206,7 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
             },
             margin: const EdgeInsets.only(bottom: UIConstants.spacing16),
           ),
-          
+
           // Today's schedule
           InfoCard(
             title: 'Today\'s Schedule',
@@ -122,7 +218,7 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
             },
             margin: const EdgeInsets.only(bottom: UIConstants.spacing16),
           ),
-          
+
           // Pending tasks
           const Text(
             'Pending Tasks',
@@ -134,9 +230,36 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
           ),
           const SizedBox(height: UIConstants.spacing16),
           _buildPendingTasks(),
-          
+
           const SizedBox(height: UIConstants.spacing24),
-          
+
+          // Registered classrooms section
+          const Text(
+            'Registered Classrooms',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: AppTheme.textPrimaryColor,
+            ),
+          ),
+          const SizedBox(height: 8),
+          _isLoadingClassrooms
+              ? const Center(child: CircularProgressIndicator())
+              : _registeredClassrooms.isEmpty
+                  ? const Text('No classrooms registered yet.')
+                  : Column(
+                      children: _registeredClassrooms
+                          .map((classroom) => ListTile(
+                                leading: CircleAvatar(
+                                  child: Text(classroom.name[0]),
+                                ),
+                                title: Text(classroom.name),
+                                subtitle: Text('ID: ${classroom.id}'),
+                              ))
+                          .toList(),
+                    ),
+          const SizedBox(height: UIConstants.spacing24),
+
           // Quick actions
           const Text(
             'Quick Actions',
@@ -320,7 +443,9 @@ class TaskItem extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isCompleted ? AppTheme.accentColor1 : Colors.transparent,
                 border: Border.all(
-                  color: isCompleted ? AppTheme.accentColor1 : AppTheme.textSecondaryColor,
+                  color: isCompleted
+                      ? AppTheme.accentColor1
+                      : AppTheme.textSecondaryColor,
                   width: 2,
                 ),
                 shape: BoxShape.circle,

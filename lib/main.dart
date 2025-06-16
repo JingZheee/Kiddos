@@ -7,15 +7,24 @@ import 'core/providers/user_role_provider.dart';
 import 'core/providers/user_provider.dart';
 import 'core/providers/survey_provider.dart';
 import 'core/routing/app_router.dart';
+import 'package:nursery_app/utils/seed_data.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
+  const bool shouldSeedData =
+      bool.fromEnvironment('SEED_DATA', defaultValue: false);
+  if (shouldSeedData) {
+    await SeedData.generateSeedData();
+    print('Seed data generated successfully!');
+  }
+
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  
+
   runApp(const NurseryApp());
 }
 
@@ -27,7 +36,7 @@ class NurseryApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => SurveyProvider()),
         ChangeNotifierProxyProvider<UserRoleProvider, UserProvider>(
           create: (context) => UserProvider(context.read<UserRoleProvider>()),
-          update: (_, userRoleProvider, userProvider) => 
+          update: (_, userRoleProvider, userProvider) =>
               userProvider ?? UserProvider(userRoleProvider),
         ),
       ],
@@ -35,7 +44,8 @@ class NurseryApp extends StatelessWidget {
         builder: (context, userProvider, userRoleProvider, child) {
           // Initialize roles when app starts
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (!userRoleProvider.isInitialized && !userRoleProvider.isLoading) {
+            if (!userRoleProvider.isInitialized &&
+                !userRoleProvider.isLoading) {
               userRoleProvider.initializeRoles();
             }
           });

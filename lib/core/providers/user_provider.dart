@@ -25,7 +25,8 @@ class UserProvider extends ChangeNotifier {
   bool get isInitialized => _isInitialized;
   String? get currentUserId => _firebaseUser?.uid;
   String? get currentUserEmail => _firebaseUser?.email;
-  String? get currentUserName => _userModel?.userName ?? _firebaseUser?.displayName;
+  String? get currentUserName =>
+      _userModel?.userName ?? _firebaseUser?.displayName;
   String? get currentUserRole => _userModel?.roleId;
   UserRoleProvider? get userRoleProvider => _userRoleProvider;
 
@@ -36,7 +37,7 @@ class UserProvider extends ChangeNotifier {
   // Initialize the provider and listen to auth state changes
   void _initializeProvider() {
     _setLoading(true);
-    
+
     // Listen to Firebase Auth state changes
     _authStateSubscription = FirebaseAuth.instance.authStateChanges().listen(
       _onAuthStateChanged,
@@ -50,7 +51,7 @@ class UserProvider extends ChangeNotifier {
   // Handle auth state changes
   Future<void> _onAuthStateChanged(User? user) async {
     _firebaseUser = user;
-    
+
     try {
       if (user != null) {
         // Skip loading data if we're in the middle of registration
@@ -80,14 +81,14 @@ class UserProvider extends ChangeNotifier {
   Future<void> _loadUserData(String uid) async {
     try {
       final userData = await AuthService.getUserData(uid);
-      
+
       if (userData != null) {
         // Get the roleId from user data
         final roleId = userData['roleId']?.toString();
-        
+
         // Always create the user model first
         _userModel = app_user.User.fromFirestore(uid, userData);
-        
+
         // Try to enhance with role data if available
         if (roleId != null && roleId.isNotEmpty && _userRoleProvider != null) {
           UserRole? userRole;
@@ -95,20 +96,21 @@ class UserProvider extends ChangeNotifier {
             userRole = _userRoleProvider!.roles.firstWhere(
               (role) => role.id == roleId,
             );
-            
+
             // Re-create user model with role data
             final userDataWithRole = Map<String, dynamic>.from(userData);
             userDataWithRole['role'] = userRole.toMap();
             _userModel = app_user.User.fromFirestore(uid, userDataWithRole);
-            
           } catch (e) {
             // Fallback: try to match by role name
             try {
-              if (roleId == 'parent' || roleId == 'teacher' || roleId == 'admin') {
+              if (roleId == 'parent' ||
+                  roleId == 'teacher' ||
+                  roleId == 'admin') {
                 userRole = _userRoleProvider!.roles.firstWhere(
                   (role) => role.roleName.toLowerCase() == roleId.toLowerCase(),
                 );
-                
+
                 // Re-create user model with role data
                 final userDataWithRole = Map<String, dynamic>.from(userData);
                 userDataWithRole['role'] = userRole.toMap();
@@ -125,10 +127,10 @@ class UserProvider extends ChangeNotifier {
       }
     } catch (e) {
       debugPrint('Error loading user data: $e');
-              _userModel = null;
-      }
-      
-      notifyListeners();
+      _userModel = null;
+    }
+
+    notifyListeners();
   }
 
   // Clear user data
@@ -151,23 +153,25 @@ class UserProvider extends ChangeNotifier {
     required String password,
     required String name,
     required String roleId,
+    String? kindergartenId,
   }) async {
     _isRegistering = true;
     _setLoading(true);
-    
+
     try {
       final result = await AuthService.registerUser(
         email: email,
         password: password,
         name: name,
         roleId: roleId,
+        kindergartenId: kindergartenId,
       );
-      
+
       if (result.isSuccess && _firebaseUser != null) {
         // Registration succeeded, now load the user data explicitly
         await _loadUserData(_firebaseUser!.uid);
       }
-      
+
       return result;
     } catch (e) {
       rethrow;
@@ -183,19 +187,19 @@ class UserProvider extends ChangeNotifier {
     required String password,
   }) async {
     _setLoading(true);
-    
+
     try {
       final result = await AuthService.loginUser(
         email: email,
         password: password,
       );
-      
+
       // Only keep loading if login succeeded
       // Auth state listener will handle setting loading to false on success
       if (!result.isSuccess) {
         _setLoading(false);
       }
-      
+
       return result;
     } catch (e) {
       _setLoading(false);
@@ -234,7 +238,7 @@ class UserProvider extends ChangeNotifier {
 
     try {
       _setLoading(true);
-      
+
       // Update Firebase Auth display name if provided
       if (name != null && name != _firebaseUser!.displayName) {
         await _firebaseUser!.updateDisplayName(name);
@@ -251,11 +255,11 @@ class UserProvider extends ChangeNotifier {
             .collection('users')
             .doc(_firebaseUser!.uid)
             .update(updatedData);
-        
+
         // Refresh user data to get the updated information
         await _loadUserData(_firebaseUser!.uid);
       }
-      
+
       return true;
     } catch (e) {
       debugPrint('Error updating user profile: $e');
@@ -270,4 +274,4 @@ class UserProvider extends ChangeNotifier {
     _authStateSubscription?.cancel();
     super.dispose();
   }
-} 
+}
