@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:nursery_app/features/teacher/leave/teacher_leave_request.dart';
 import 'package:provider/provider.dart';
 
 import '../../features/medications/teacher_update_medications.dart';
@@ -21,6 +22,9 @@ import '../../features/teacher/survey/create_survey_screen.dart';
 import '../../features/teacher/survey/survey_detail_screen.dart';
 import '../../features/parent/student_selection_screen.dart';
 import '../../features/teacher/classroom_selection_screen.dart';
+import '../../features/parent/leave/parent_leave_screen.dart';
+import '../../features/parent/leave/parent_request_leave.dart';
+import '../../features/teacher/leave/teacher_leave_request.dart';
 
 class AppRouter {
   static GoRouter createRouter({
@@ -103,7 +107,7 @@ class AppRouter {
           path: '/forgot-password',
           name: 'forgot-password',
           builder: (context, state) => const ForgotPasswordScreen(),
-        ),        // Parent routes
+        ), // Parent routes
         GoRoute(
           path: '/parent/dashboard',
           name: 'parent-dashboard',
@@ -122,24 +126,36 @@ class AppRouter {
                     return ParentSurveyFormScreen(surveyId: surveyId);
                   },
                 ),
-            GoRoute(
-              path: 'student-selection/:kindergartenId',
-              name: 'parent-student-selection',
-              builder: (context, state) => StudentSelectionScreen(
-                kindergartenId: state.pathParameters['kindergartenId']!,
-              ),
-            ),
+                GoRoute(
+                  path: 'student-selection/:kindergartenId',
+                  name: 'parent-student-selection',
+                  builder: (context, state) => StudentSelectionScreen(
+                    kindergartenId: state.pathParameters['kindergartenId']!,
+                  ),
+                ),
               ],
-            ),          ],
+            ),
+          ],
         ),
 
-        // Parent Medications routes 
+        // Parent Medications routes
         GoRoute(
           path: '/parent/medications',
           name: 'parent-medications',
           builder: (context, state) => const ParentMedicationsScreen(),
           routes: [
-            // Add child routes for parent here
+            GoRoute(
+                path: 'leave',
+                name: 'parent-leave-request',
+                builder: (context, state) => const ParentLeaveScreen(),
+                routes: [
+                  // Add child routes for parent leave requests here
+                  GoRoute(
+                    path: 'add',
+                    name: 'parent-request-leave',
+                    builder: (context, state) => const ParentRequestLeave(),
+                  ),
+                ]),
             GoRoute(
               path: 'add',
               name: 'parent-add-medication',
@@ -177,7 +193,8 @@ class AppRouter {
           path: '/teacher/dashboard',
           name: 'teacher-dashboard',
           builder: (context, state) => const TeacherDashboardScreen(),
-          routes: [            GoRoute(
+          routes: [
+            GoRoute(
               path: 'surveys',
               name: 'teacher-surveys',
               builder: (context, state) => const SurveysScreen(),
@@ -186,14 +203,16 @@ class AppRouter {
                   path: 'create',
                   name: 'create-survey',
                   builder: (context, state) => const CreateSurveyScreen(),
-                ),                GoRoute(
+                ),
+                GoRoute(
                   path: 'edit/:surveyId',
                   name: 'edit-survey',
                   builder: (context, state) {
                     final surveyId = state.pathParameters['surveyId'] ?? '';
                     return CreateSurveyScreen(surveyId: surveyId);
                   },
-                ),GoRoute(
+                ),
+                GoRoute(
                   path: 'detail/:surveyId',
                   name: 'survey-detail',
                   builder: (context, state) {
@@ -210,6 +229,11 @@ class AppRouter {
                 kindergartenId: state.pathParameters['kindergartenId']!,
               ),
             ),
+            GoRoute(
+              path: 'teacher/leave',
+              name: 'teacher-leave',
+              builder: (context, state) => const TeacherLeaveRequest(),
+            )
           ],
         ),
 

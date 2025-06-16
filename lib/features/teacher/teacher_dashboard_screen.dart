@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/constants/ui_constants.dart';
@@ -349,6 +350,13 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
           onTap: () {
             // TODO: Update Medication
             AppNavigation.goToTeacherMedications(context);
+          },
+        ),
+          QuickActionButton(
+          icon: Icons.note_alt_outlined,
+          label: 'Take Leave',
+          onTap: () {
+            context.pushNamed('teacher-leave');
           },
         ),
       ],

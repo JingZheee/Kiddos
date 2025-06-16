@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/ui_constants.dart';
 import '../../core/routing/app_navigation.dart';
@@ -323,9 +325,11 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
         ),
         QuickActionButton(
           icon: Icons.note_alt_outlined,
-          label: 'Absence Note',
+          label: 'Take Leave',
           onTap: () {
-            // TODO: Report absence
+            context.pushNamed('parent-leave-request');
+            // Or alternatively:
+            // context.push('/parent/dashboard/leave');
           },
         ),
         QuickActionButton(
