@@ -11,6 +11,14 @@ class ClassroomTeacherService {
             .toList());
   }
 
+  Stream<List<String>> getClassroomIdsByTeacherId(String teacherId) {
+    return _db
+        .collection('classroomTeachers')
+        .where('teacherId', isEqualTo: teacherId)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) => doc.id).toList());
+  }
+
   Future<void> createClassroomTeacher(ClassroomTeacher classroomTeacher) async {
     await _db
         .collection('classroomTeachers')

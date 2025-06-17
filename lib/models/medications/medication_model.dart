@@ -8,7 +8,7 @@ enum MedicationStatus {
 
 class Medication {
   final String id;
-  final String childId;
+  final String studentId;
   final String medicationName;
   final String dosage;
   final String frequency;
@@ -23,7 +23,7 @@ class Medication {
 
   Medication({
     required this.id,
-    required this.childId,
+    required this.studentId,
     required this.medicationName,
     required this.dosage,
     required this.frequency,
@@ -41,7 +41,7 @@ class Medication {
   factory Medication.fromFirestore(String uid, Map<String, dynamic> data) {
     return Medication(
       id: uid,
-      childId: data['childId'],
+      studentId: data['studentId'],
       medicationName: data['medicationName'],
       dosage: data['dosage'],
       frequency: data['frequency'],
@@ -66,7 +66,7 @@ class Medication {
   // Convert to Firestore document
   Map<String, dynamic> toFirestoreMap() {
     return {
-      'childId': childId,
+      'studentId': studentId,
       'medicationName': medicationName,
       'dosage': dosage,
       'frequency': frequency,

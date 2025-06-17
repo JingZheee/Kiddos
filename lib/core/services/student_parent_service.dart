@@ -13,6 +13,14 @@ class StudentParentService {
     await _db.collection('studentParents').add(studentParent.toFirestore());
   }
 
+  Future<List<String>> getStudentIdForParent(String parentId) async {
+    final studentParents = await getStudentParents().first;
+    return studentParents
+        .where((studentParent) => studentParent.parentId == parentId)
+        .map((studentParent) => studentParent.studentId)
+        .toList();
+  }
+
   Future<void> updateStudentParent(StudentParent studentParent) async {
     await _db
         .collection('studentParents')
