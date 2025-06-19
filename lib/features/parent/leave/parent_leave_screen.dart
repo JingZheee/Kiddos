@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert';
+import 'package:go_router/go_router.dart';
+
 import '../../../core/services/take_leave_service.dart';
 import '../../../models/leave/leave_request_model.dart';
 import '../../../models/leave/leave_doc_model.dart';
@@ -79,9 +81,35 @@ class _ParentLeaveScreenState extends State<ParentLeaveScreen> {
   PreferredSizeWidget _buildAppBar() {
     return CustomAppBar(
       title: 'Leave Requests',
-      centerTitle: true,
+      userRole: 'parent',
+      actions: [
+        IconButton(
+          onPressed: () => context.pushNamed('parent-request-leave'),
+          icon: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppTheme.primaryColor,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.primaryColor.withOpacity(0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: const Icon(
+              Icons.add,
+              color: Colors.white,
+              size: 20,
+            ),
+          ),
+          tooltip: 'Request Leave',
+        ),
+      ],
     );
   }
+
 
   Widget _buildSearchBar() {
     return Container(
@@ -191,8 +219,8 @@ class _ParentLeaveScreenState extends State<ParentLeaveScreen> {
         textColor = isSelected ? Colors.white : const Color(0xFF9E9E9E);
         break;
       default:
-        chipColor = isSelected ? const Color(0xFF667EEA) : const Color(0xFF667EEA).withOpacity(0.1);
-        textColor = isSelected ? Colors.white : const Color(0xFF667EEA);
+        chipColor = isSelected ?  AppTheme.primaryColor :  AppTheme.primaryColor.withOpacity(0.1);
+        textColor = isSelected ? Colors.white :  AppTheme.primaryColor;
     }
 
     return GestureDetector(
@@ -402,7 +430,7 @@ class _ParentLeaveScreenState extends State<ParentLeaveScreen> {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        const Color(0xFF667EEA).withOpacity(0.1),
+                         AppTheme.primaryColor.withOpacity(0.1),
                         const Color(0xFF764BA2).withOpacity(0.1),
                       ],
                     ),
@@ -410,7 +438,7 @@ class _ParentLeaveScreenState extends State<ParentLeaveScreen> {
                   ),
                   child: const Icon(
                     Icons.person_outline,
-                    color: Color(0xFF667EEA),
+                    color: AppTheme.primaryColor,
                     size: 20,
                   ),
                 ),
@@ -532,12 +560,12 @@ class _ParentLeaveScreenState extends State<ParentLeaveScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Color(0xFF667EEA), Color(0xFF764BA2)],
+                        colors: [AppTheme.primaryColor, Color(0xFF764BA2)],
                       ),
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF667EEA).withOpacity(0.3),
+                          color:  AppTheme.primaryColor.withOpacity(0.3),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         ),
@@ -1363,7 +1391,7 @@ class _ParentLeaveScreenState extends State<ParentLeaveScreen> {
               child: Row(
                 children: [
                   const CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF667EEA)),
+                    valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
                   ),
                   const SizedBox(width: 20),
                   Expanded(
@@ -1445,7 +1473,7 @@ class _ParentLeaveScreenState extends State<ParentLeaveScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF667EEA)),
+            valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
           ),
           const SizedBox(height: 16),
           Text(
