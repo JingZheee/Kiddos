@@ -42,16 +42,13 @@ class AppRouter {
         final userModel = userProvider.userModel;
         final path = state.matchedLocation;
 
-        if (!isInitialized) {
-          return path == '/splash' ? null : '/splash';
-        }
-
-        if (path == '/splash') {
-          return '/login';
+        // Show splash while initializing
+        if (!isInitialized && path != '/splash') {
+          return '/splash';
         }
 
         // If user is not authenticated and trying to access protected routes
-        if (!isAuthenticated) {
+        if (isInitialized && !isAuthenticated) {
           if (path != '/login' &&
               path != '/register' &&
               path != '/forgot-password') {
@@ -63,7 +60,7 @@ class AppRouter {
         // If user is authenticated
         if (isAuthenticated && userModel != null) {
           // Redirect from auth pages to appropriate dashboard
-          if (path == '/login' || path == '/register') {
+          if (path == '/login' || path == '/register' || path == '/splash') {
             if (userModel.isParent) {
               return '/parent/dashboard';
             } else if (userModel.isTeacher) {
