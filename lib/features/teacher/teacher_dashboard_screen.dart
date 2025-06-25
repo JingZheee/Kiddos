@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:go_router/go_router.dart';
 import '../../core/constants/ui_constants.dart';
 import '../../core/routing/app_navigation.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/providers/user_provider.dart';
 import '../../widgets/custom_app_bar.dart';
-import '../../widgets/custom_card.dart';
+import '../../widgets/teacher_custom_bottom_nav.dart';
 import '../../core/services/kindergarten_service.dart';
 import '../../models/kindergarten/kindergarten.dart';
 import '../../features/teacher/classroom_selection_screen.dart';
+import '../../features/teacher/attendance/teacher_attendance_screen.dart';
 import '../../core/services/classroom_teacher_service.dart';
 import '../../core/services/classroom_service.dart';
 import '../../models/classroom/classroom.dart';
@@ -123,17 +123,18 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
       bottomNavigationBar: _buildBottomNavigationBar(),
     );
   }
-
   Widget _buildBody() {
     switch (_selectedIndex) {
       case 0:
         return _buildHomeTab();
       case 1:
-        return _buildClassroomTab();
+        return _buildCalendarTab();
       case 2:
-        return _buildActivitiesTab();
+        return _buildAttendanceTab();
       case 3:
-        return _buildMessagesTab();
+        return _buildTasksTab();
+      case 4:
+        return _buildProfileTab();
       default:
         return _buildHomeTab();
     }
@@ -191,47 +192,12 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
                   );
                 },
                 child: const Text('Go to Classroom Selection'),
-              );
-            },
-          ),
+              );            },          ),
           const SizedBox(height: UIConstants.spacing24),
 
-          // Class summary card
-          InfoCard(
-            title: 'Class Summary',
-            subtitle: '12 children present, 3 absent',
-            icon: Icons.groups_outlined,
-            iconColor: AppTheme.primaryColor,
-            onTap: () {
-              // TODO: Navigate to attendance detail
-            },
-            margin: const EdgeInsets.only(bottom: UIConstants.spacing16),
-          ),
-
-          // Today's schedule
-          InfoCard(
-            title: 'Today\'s Schedule',
-            subtitle: '5 activities planned',
-            icon: Icons.calendar_today,
-            iconColor: AppTheme.secondaryColor,
-            onTap: () {
-              // TODO: Navigate to schedule
-            },
-            margin: const EdgeInsets.only(bottom: UIConstants.spacing16),
-          ),
-
-          // Pending tasks
-          const Text(
-            'Pending Tasks',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.textPrimaryColor,
-            ),
-          ),
-          const SizedBox(height: UIConstants.spacing16),
-          _buildPendingTasks(),
-
+          // Quick actions (without title)
+          _buildQuickActions(),
+          
           const SizedBox(height: UIConstants.spacing24),
 
           // Registered classrooms section
@@ -259,52 +225,8 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
                               ))
                           .toList(),
                     ),
-          const SizedBox(height: UIConstants.spacing24),
-
-          // Quick actions
-          const Text(
-            'Quick Actions',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.textPrimaryColor,
-            ),
-          ),
-          const SizedBox(height: UIConstants.spacing16),
-          _buildQuickActions(),
         ],
       ),
-    );
-  }
-
-  Widget _buildPendingTasks() {
-    return Column(
-      children: [
-        TaskItem(
-          title: 'Take Attendance',
-          dueTime: 'Due 9:15 AM',
-          isCompleted: true,
-          onTap: () {
-            // TODO: Navigate to attendance
-          },
-        ),
-        TaskItem(
-          title: 'Log Meal Activities',
-          dueTime: 'Due 1:00 PM',
-          isCompleted: false,
-          onTap: () {
-            // TODO: Navigate to meal activities
-          },
-        ),
-        TaskItem(
-          title: 'Update Parent Messages',
-          dueTime: 'Due 4:00 PM',
-          isCompleted: false,
-          onTap: () {
-            // TODO: Navigate to messaging
-          },
-        ),
-      ],
     );
   }
   Widget _buildQuickActions() {
@@ -312,18 +234,18 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
       crossAxisCount: 4,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      childAspectRatio: 0.76, //
+      childAspectRatio: 0.76,
       children: [
         QuickActionButton(
-          icon: Icons.add_task_outlined,
-          label: 'Activity',
+          icon: Icons.calendar_month_outlined,
+          label: 'Calendar',
           onTap: () {
-            // TODO: Add new activity
             setState(() {
-              _selectedIndex = 2;
+              _selectedIndex = 1; // Calendar tab
             });
           },
-        ),        QuickActionButton(
+        ),
+        QuickActionButton(
           icon: Icons.poll_outlined,
           label: 'Surveys',
           onTap: () {
@@ -331,19 +253,20 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
           },
         ),
         QuickActionButton(
-          icon: Icons.person_add_outlined,
+          icon: Icons.how_to_reg_outlined,
           label: 'Attendance',
           onTap: () {
-            // TODO: Take attendance
+            setState(() {
+              _selectedIndex = 2; // Attendance tab
+            });
           },
         ),
         QuickActionButton(
-          icon: Icons.message_outlined,
-          label: 'Message',
+          icon: Icons.task_outlined,
+          label: 'Tasks',
           onTap: () {
-            // TODO: Send new message
             setState(() {
-              _selectedIndex = 3;
+              _selectedIndex = 3; // Tasks tab
             });
           },
         ),
@@ -351,11 +274,10 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
           icon: Icons.medication_outlined,
           label: 'Medications',
           onTap: () {
-            // TODO: Update Medication
             AppNavigation.goToTeacherMedications(context);
           },
         ),
-          QuickActionButton(
+        QuickActionButton(
           icon: Icons.note_alt_outlined,
           label: 'Take Leave',
           onTap: () {
@@ -365,150 +287,117 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
       ],
     );
   }
-
-  Widget _buildClassroomTab() {
-    // Placeholder for classroom tab
+  Widget _buildCalendarTab() {
+    // Calendar tab content
     return const Center(
-      child: Text('Classroom Tab - Coming Soon'),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.calendar_today,
+            size: 64,
+            color: AppTheme.primaryColor,
+          ),
+          SizedBox(height: 16),
+          Text(
+            'Calendar Tab',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: AppTheme.textPrimaryColor,
+            ),
+          ),
+          SizedBox(height: 8),
+          Text(
+            'Coming Soon',
+            style: TextStyle(
+              fontSize: 16,
+              color: AppTheme.textSecondaryColor,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildActivitiesTab() {
-    // Placeholder for activities tab
+  Widget _buildAttendanceTab() {
+    // Show the full attendance screen
+    return const TeacherAttendanceScreen();
+  }
+
+  Widget _buildTasksTab() {
+    // Tasks tab content
     return const Center(
-      child: Text('Activities Tab - Coming Soon'),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.task,
+            size: 64,
+            color: AppTheme.primaryColor,
+          ),
+          SizedBox(height: 16),
+          Text(
+            'Tasks',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: AppTheme.textPrimaryColor,
+            ),
+          ),
+          SizedBox(height: 8),
+          Text(
+            'Manage your daily tasks',
+            style: TextStyle(
+              fontSize: 16,
+              color: AppTheme.textSecondaryColor,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildMessagesTab() {
-    // Placeholder for messages tab
+  Widget _buildProfileTab() {
+    // Profile tab content
     return const Center(
-      child: Text('Messages Tab - Coming Soon'),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.person,
+            size: 64,
+            color: AppTheme.primaryColor,
+          ),
+          SizedBox(height: 16),
+          Text(
+            'Profile',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: AppTheme.textPrimaryColor,
+            ),
+          ),
+          SizedBox(height: 8),
+          Text(
+            'Manage your profile settings',
+            style: TextStyle(
+              fontSize: 16,
+              color: AppTheme.textSecondaryColor,
+            ),
+          ),
+        ],
+      ),
     );
   }
-
   Widget _buildBottomNavigationBar() {
-    return BottomNavigationBar(
+    return TeacherCustomBottomNav(
       currentIndex: _selectedIndex,
       onTap: (index) {
         setState(() {
           _selectedIndex = index;
         });
       },
-      type: BottomNavigationBarType.fixed,
-      backgroundColor: Colors.white,
-      selectedItemColor: AppTheme.primaryColor,
-      unselectedItemColor: AppTheme.textSecondaryColor,
-      items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home_outlined),
-          activeIcon: Icon(Icons.home),
-          label: 'Home',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.groups_outlined),
-          activeIcon: Icon(Icons.groups),
-          label: 'Classroom',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.calendar_today_outlined),
-          activeIcon: Icon(Icons.calendar_today),
-          label: 'Activities',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.message_outlined),
-          activeIcon: Icon(Icons.message),
-          label: 'Messages',
-        ),
-      ],
-    );
-  }
-}
-
-class TaskItem extends StatelessWidget {
-  final String title;
-  final String dueTime;
-  final bool isCompleted;
-  final VoidCallback? onTap;
-
-  const TaskItem({
-    Key? key,
-    required this.title,
-    required this.dueTime,
-    required this.isCompleted,
-    this.onTap,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(UIConstants.radiusLarge),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: UIConstants.spacing8),
-        child: Row(
-          children: [
-            Container(
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                color: isCompleted ? AppTheme.accentColor1 : Colors.transparent,
-                border: Border.all(
-                  color: isCompleted
-                      ? AppTheme.accentColor1
-                      : AppTheme.textSecondaryColor,
-                  width: 2,
-                ),
-                shape: BoxShape.circle,
-              ),
-              child: isCompleted
-                  ? const Icon(
-                      Icons.check,
-                      size: 16,
-                      color: Colors.white,
-                    )
-                  : null,
-            ),
-            const SizedBox(width: UIConstants.spacing12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                      color: isCompleted
-                          ? AppTheme.textSecondaryColor
-                          : AppTheme.textPrimaryColor,
-                      decoration: isCompleted
-                          ? TextDecoration.lineThrough
-                          : TextDecoration.none,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    dueTime,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: isCompleted
-                          ? AppTheme.textLightColor
-                          : AppTheme.textSecondaryColor,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Icon(
-              Icons.chevron_right,
-              color: isCompleted
-                  ? AppTheme.textLightColor
-                  : AppTheme.textSecondaryColor,
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
