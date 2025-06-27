@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/ui_constants.dart';
@@ -8,10 +7,11 @@ import '../../core/theme/app_theme.dart';
 import '../../core/providers/user_provider.dart';
 import '../../widgets/custom_app_bar.dart';
 import '../../widgets/custom_card.dart';
+import '../../widgets/parent_custom_bottom_nav.dart';
 import '../../core/services/kindergarten_service.dart';
 import '../../models/kindergarten/kindergarten.dart';
 import '../../features/parent/student_selection_screen.dart';
-import '../../features/teacher/classroom_selection_screen.dart';
+import '../../features/parent/attendance/parent_attendance_screen.dart';
 import '../../core/services/student_parent_service.dart';
 import '../../core/services/student_service.dart';
 import '../../models/student/student.dart';
@@ -121,16 +121,28 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
         ],
       ),
       body: _buildBody(),
-      bottomNavigationBar: _buildBottomNavigationBar(),
+      bottomNavigationBar: ParentCustomBottomNav(
+        currentIndex: _selectedIndex,
+        onTap: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
+      ),
     );
   }
+  
   Widget _buildBody() {
     switch (_selectedIndex) {
       case 0:
         return _buildHomeTab();
       case 1:
-        return _buildActivitiesTab();
+        return _buildChildrenTab();
       case 2:
+        return const ParentAttendanceScreen();
+      case 3:
+        return _buildActivitiesTab();
+      case 4:
         return _buildMessagesTab();
       default:
         return _buildHomeTab();
@@ -378,42 +390,86 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
     );
   }
 
-  Widget _buildBottomNavigationBar() {
-    return BottomNavigationBar(
-      currentIndex: _selectedIndex,
-      onTap: (index) {
-        setState(() {
-          _selectedIndex = index;
-        });
+  Widget _buildChildrenTab() {
+    // Display registered children
+    if (_isLoadingStudents) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
+    if (_registeredStudents.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.child_care_outlined,
+              size: 64,
+              color: AppTheme.textSecondaryColor,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No children registered yet',
+              style: TextStyle(
+                fontSize: 16,
+                color: AppTheme.textSecondaryColor,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(UIConstants.spacing16),
+      itemCount: _registeredStudents.length,
+      itemBuilder: (context, index) {
+        final child = _registeredStudents[index];
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: ListTile(
+            contentPadding: const EdgeInsets.all(UIConstants.spacing16),
+            leading: CircleAvatar(
+              backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
+              child: Text(
+                child.firstName[0],
+                style: TextStyle(
+                  color: AppTheme.primaryColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            title: Text(
+              '${child.firstName} ${child.lastName}',
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            subtitle: Text(
+              'Class: ${child.classroomId ?? "Not assigned"}',
+              style: TextStyle(
+                color: AppTheme.textSecondaryColor,
+              ),
+            ),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+          ),
+        );
       },
-      type: BottomNavigationBarType.fixed,
-      backgroundColor: Colors.white,
-      selectedItemColor: AppTheme.primaryColor,
-      unselectedItemColor: AppTheme.textSecondaryColor,
-      items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home_outlined),
-          activeIcon: Icon(Icons.home),
-          label: 'Home',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.child_care_outlined),
-          activeIcon: Icon(Icons.child_care),
-          label: 'Children',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.calendar_today_outlined),
-          activeIcon: Icon(Icons.calendar_today),
-          label: 'Activities',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.message_outlined),
-          activeIcon: Icon(Icons.message),
-          label: 'Messages',
-        ),
-      ],
     );
   }
+
 }
 
 class ActivityItem extends StatelessWidget {
