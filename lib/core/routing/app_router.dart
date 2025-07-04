@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:nursery_app/features/teacher/leave/teacher_leave_request.dart';
 import 'package:provider/provider.dart';
 
 import '../../features/medications/teacher_update_medications.dart';
@@ -25,6 +24,10 @@ import '../../features/teacher/classroom_selection_screen.dart';
 import '../../features/parent/leave/parent_leave_screen.dart';
 import '../../features/parent/leave/parent_request_leave.dart';
 import '../../features/teacher/leave/teacher_leave_request.dart';
+import '../../features/teacher/announcements/teacher_announcements_screen.dart';
+import '../../features/teacher/announcements/create_announcement_screen.dart';
+import '../../features/parent/announcements/parent_announcements_screen.dart';
+import '../../features/shared/announcements/announcement_detail_screen.dart';
 
 class AppRouter {
   static GoRouter createRouter({
@@ -138,6 +141,11 @@ class AppRouter {
                 ),
               ],
             ),
+            GoRoute(
+              path: 'announcements',
+              name: 'parent-announcements',
+              builder: (context, state) => const ParentAnnouncementsScreen(),
+            ),
           ],
         ),
 
@@ -221,6 +229,42 @@ class AppRouter {
                   builder: (context, state) {
                     final surveyId = state.pathParameters['surveyId'] ?? '';
                     return SurveyDetailScreen(surveyId: surveyId);
+                  },
+                ),
+              ],
+            ),
+            GoRoute(
+              path: 'announcements',
+              name: 'teacher-announcements',
+              builder: (context, state) => const TeacherAnnouncementsScreen(),
+              routes: [
+                GoRoute(
+                  path: 'create',
+                  name: 'create-announcement',
+                  builder: (context, state) => const CreateAnnouncementScreen(),
+                ),
+                GoRoute(
+                  path: 'edit/:announcementId',
+                  name: 'edit-announcement',
+                  builder: (context, state) {
+                    final announcementId = state.pathParameters['announcementId'] ?? '';
+                    return CreateAnnouncementScreen(announcementId: announcementId);
+                  },
+                ),
+                GoRoute(
+                  path: 'duplicate/:announcementId',
+                  name: 'duplicate-announcement',
+                  builder: (context, state) {
+                    final announcementId = state.pathParameters['announcementId'] ?? '';
+                    return CreateAnnouncementScreen(duplicateId: announcementId);
+                  },
+                ),
+                GoRoute(
+                  path: 'detail/:announcementId',
+                  name: 'announcement-detail',
+                  builder: (context, state) {
+                    final announcementId = state.pathParameters['announcementId'] ?? '';
+                    return AnnouncementDetailScreen(announcementId: announcementId);
                   },
                 ),
               ],

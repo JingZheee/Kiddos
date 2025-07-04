@@ -336,6 +336,13 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
           },
         ),
         QuickActionButton(
+          icon: Icons.campaign_outlined,
+          label: 'Announcements',
+          onTap: () {
+            context.push('/parent/dashboard/announcements');
+          },
+        ),
+        QuickActionButton(
           icon: Icons.note_alt_outlined,
           label: 'Take Leave',
           onTap: () {

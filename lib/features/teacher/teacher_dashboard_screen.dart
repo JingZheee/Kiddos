@@ -10,7 +10,7 @@ import '../../widgets/teacher_custom_bottom_nav.dart';
 import '../../core/services/kindergarten_service.dart';
 import '../../models/kindergarten/kindergarten.dart';
 import '../../features/teacher/classroom_selection_screen.dart';
-import '../../features/teacher/attendance/teacher_attendance_screen.dart';
+import '../../features/teacher/attendance/teacher_attendance_with_ai_screen.dart';
 import '../../core/services/classroom_teacher_service.dart';
 import '../../core/services/classroom_service.dart';
 import '../../models/classroom/classroom.dart';
@@ -253,6 +253,13 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
           },
         ),
         QuickActionButton(
+          icon: Icons.campaign_outlined,
+          label: 'Announcements',
+          onTap: () {
+            context.push('/teacher/dashboard/announcements');
+          },
+        ),
+        QuickActionButton(
           icon: Icons.how_to_reg_outlined,
           label: 'Attendance',
           onTap: () {
@@ -321,8 +328,8 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
   }
 
   Widget _buildAttendanceTab() {
-    // Show the full attendance screen
-    return const TeacherAttendanceScreen();
+    // Show the AI-enhanced attendance screen
+    return const TeacherAttendanceWithAiScreen();
   }
 
   Widget _buildTasksTab() {

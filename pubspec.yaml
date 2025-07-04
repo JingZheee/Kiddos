@@ -54,6 +54,8 @@ dependencies:
   uuid: ^4.0.0
   image_picker: ^1.1.2
   insta_image_viewer: ^1.0.4
+  image: ^4.1.7
+  camera: ^0.10.5+5
 
 dev_dependencies:
   flutter_test:

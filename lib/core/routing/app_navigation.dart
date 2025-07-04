@@ -53,6 +53,23 @@ class AppNavigation {
     context.go('/teacher/medications/edit/$medicationId');
   }
 
+  // Announcements routes
+  static void goToTeacherAnnouncements(BuildContext context) {
+    context.go('/teacher/dashboard/announcements');
+  }
+
+  static void goToCreateAnnouncement(BuildContext context) {
+    context.go('/teacher/dashboard/announcements/create');
+  }
+
+  static void goToEditAnnouncement(BuildContext context, String announcementId) {
+    context.go('/teacher/dashboard/announcements/edit/$announcementId');
+  }
+
+  static void goToDuplicateAnnouncement(BuildContext context, String announcementId) {
+    context.go('/teacher/dashboard/announcements/duplicate/$announcementId');
+  }
+
   // Utility routes
   static void goToUserRoleExample(BuildContext context) {
     context.go('/example/user-roles');
@@ -180,6 +197,19 @@ class AppNavigation {
 
   static void pushParentSurveyForm(BuildContext context, String surveyId) {
     context.push('/parent/dashboard/surveys/form/$surveyId');
+  }
+
+  // Push navigation for announcements
+  static void pushTeacherAnnouncements(BuildContext context) {
+    context.push('/teacher/dashboard/announcements');
+  }
+
+  static void pushCreateAnnouncement(BuildContext context) {
+    context.push('/teacher/dashboard/announcements/create');
+  }
+
+  static void pushEditAnnouncement(BuildContext context, String announcementId) {
+    context.push('/teacher/dashboard/announcements/edit/$announcementId');
   }
 
   // Future: Add methods for nested routes when you implement them

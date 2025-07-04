@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import '../../../core/theme/app_theme.dart';
-import '../../../core/constants/ui_constants.dart';
+import '../core/theme/app_theme.dart';
+import '../core/constants/ui_constants.dart';
 
 class PhotoAssignmentDialog extends StatelessWidget {
   final String studentName;

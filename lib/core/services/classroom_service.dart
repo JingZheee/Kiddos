@@ -1,57 +1,72 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:nursery_app/models/classroom/classroom.dart';
 import 'package:nursery_app/models/timestamp/timestamp_model.dart';
 
 class ClassroomService {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  late final CollectionReference _classroomsCollection;
-
-  ClassroomService() {
-    _classroomsCollection = _firestore.collection('classrooms');
-  }
+  // Dummy classroom data
+  static final List<Classroom> _dummyClassrooms = [
+    Classroom(
+      id: 'class1',
+      name: 'Little Stars (Age 3-4)',
+      kindergartenId: 'kg1',
+      timestamps: Timestamps.now(),
+    ),
+    Classroom(
+      id: 'class2', 
+      name: 'Bright Minds (Age 4-5)',
+      kindergartenId: 'kg1',
+      timestamps: Timestamps.now(),
+    ),
+    Classroom(
+      id: 'class3',
+      name: 'Creative Explorers (Age 5-6)',
+      kindergartenId: 'kg1',
+      timestamps: Timestamps.now(),
+    ),
+  ];
 
   // Create
   Future<void> createClassroom(Classroom classroom) async {
-    await _classroomsCollection.doc(classroom.id).set(classroom.toFirestore());
+    await Future.delayed(const Duration(milliseconds: 500));
+    _dummyClassrooms.add(classroom);
   }
 
   // Read (single)
   Future<Classroom?> getClassroom(String id) async {
-    DocumentSnapshot doc = await _classroomsCollection.doc(id).get();
-    if (doc.exists) {
-      return Classroom.fromFirestore(doc);
+    await Future.delayed(const Duration(milliseconds: 300));
+    try {
+      return _dummyClassrooms.firstWhere((classroom) => classroom.id == id);
+    } catch (e) {
+      return null;
     }
-    return null;
   }
 
   // Read (all)
-  Stream<List<Classroom>> getClassrooms() {
-    return _classroomsCollection.snapshots().map((snapshot) {
-      return snapshot.docs.map((doc) => Classroom.fromFirestore(doc)).toList();
-    });
+  Stream<List<Classroom>> getClassrooms() async* {
+    await Future.delayed(const Duration(milliseconds: 300));
+    yield _dummyClassrooms;
   }
 
   // Read (all by kindergarten)
-  Stream<List<Classroom>> getClassroomsByKindergarten(String kindergartenId) {
-    return _classroomsCollection
-        .where('kindergartenId', isEqualTo: kindergartenId)
-        .snapshots()
-        .map((snapshot) {
-      return snapshot.docs.map((doc) => Classroom.fromFirestore(doc)).toList();
-    });
+  Stream<List<Classroom>> getClassroomsByKindergarten(String kindergartenId) async* {
+    await Future.delayed(const Duration(milliseconds: 300));
+    final filteredClassrooms = _dummyClassrooms
+        .where((classroom) => classroom.kindergartenId == kindergartenId)
+        .toList();
+    yield filteredClassrooms;
   }
 
   // Update
   Future<void> updateClassroom(Classroom classroom) async {
-    await _classroomsCollection
-        .doc(classroom.id)
-        .update(classroom.toFirestore());
+    await Future.delayed(const Duration(milliseconds: 500));
+    final index = _dummyClassrooms.indexWhere((c) => c.id == classroom.id);
+    if (index != -1) {
+      _dummyClassrooms[index] = classroom;
+    }
   }
 
-  // Delete (soft delete)
+  // Delete
   Future<void> deleteClassroom(String id) async {
-    await _classroomsCollection.doc(id).update({
-      'deletedAt': Timestamp.fromDate(Timestamps.now().deletedAt!),
-    });
+    await Future.delayed(const Duration(milliseconds: 500));
+    _dummyClassrooms.removeWhere((classroom) => classroom.id == id);
   }
 }
