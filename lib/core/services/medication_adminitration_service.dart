@@ -4,7 +4,7 @@ import '../../models/medications/medication_administration_model.dart';
 
 class MedicationAdministrationService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final String _collectionName = 'medication_administrations';
+  final String _db = 'medication_administrations';
 
   // Create a new medication administration record
   Future<void> createMedicationAdministration({
@@ -14,7 +14,7 @@ class MedicationAdministrationService {
     required String proofOfPhotoUrl,
   }) async {
     try {
-      final docRef = _firestore.collection(_collectionName).doc();
+      final docRef = _firestore.collection(_db).doc();
 
       final administration = MedicationAdministration(
         id: docRef.id,
@@ -37,7 +37,7 @@ class MedicationAdministrationService {
       String medicationId) async {
     try {
       final snapshot = await _firestore
-          .collection(_collectionName)
+          .collection(_db)
           .where('medicationId', isEqualTo: medicationId)
           .orderBy('administrationAt', descending: true)
           .get();
@@ -55,7 +55,7 @@ class MedicationAdministrationService {
       String administrationId) async {
     try {
       final doc = await _firestore
-          .collection(_collectionName)
+          .collection(_db)
           .doc(administrationId)
           .get();
 
@@ -97,7 +97,7 @@ class MedicationAdministrationService {
       }
 
       await _firestore
-          .collection(_collectionName)
+          .collection(_db)
           .doc(administrationId)
           .update(updates);
     } catch (e) {
@@ -109,7 +109,7 @@ class MedicationAdministrationService {
   Future<void> deleteMedicationAdministration(String administrationId) async {
     try {
       await _firestore
-          .collection(_collectionName)
+          .collection(_db)
           .doc(administrationId)
           .delete();
     } catch (e) {

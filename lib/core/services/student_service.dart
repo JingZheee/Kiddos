@@ -22,6 +22,17 @@ class StudentService {
       return Student.fromFirestore(doc);
     }
     return null;
+  } 
+  
+  //get student id for parent
+  Future<List<Map<String, String>>> getStudentNameForParent(List<String> studentIds) async {
+    final students = await _studentsCollection
+        .where(FieldPath.documentId, whereIn: studentIds)
+        .get();
+    return students.docs.map((doc) => {
+      'id': doc.id,
+      'firstName': doc.get('firstName') as String,
+    }).toList();
   }
 
   // Read (all)

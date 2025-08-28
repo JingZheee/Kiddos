@@ -3,11 +3,11 @@ import 'package:go_router/go_router.dart';
 import 'package:nursery_app/features/teacher/leave/teacher_leave_request.dart';
 import 'package:provider/provider.dart';
 
-import '../../features/medications/teacher_update_medications.dart';
-import '../../features/medications/parent_add_medication.dart';
-import '../../features/medications/parent_edit_medication.dart';
-import '../../features/medications/parent_medications.dart';
-import '../../features/medications/teacher_medications.dart';
+import '../../features/teacher/medication/teacher_update_medications.dart';
+import '../../features/parent/medication/parent_add_medication.dart';
+import '../../features/parent/medication/parent_edit_medication.dart';
+import '../../features/parent/medication/parent_medications.dart';
+import '../../features/teacher/medication/teacher_medications.dart';
 import '../providers/user_provider.dart';
 import '../providers/user_role_provider.dart';
 import '../../features/auth/login_screen.dart';

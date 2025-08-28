@@ -4,9 +4,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:insta_image_viewer/insta_image_viewer.dart';
-import '../../core/services/medication_service.dart';
-import '../../models/medications/medication_model.dart';
-import '../../widgets/custom_app_bar.dart';
+import '../../../core/services/medication_service.dart';
+import '../../../models/medications/medication_model.dart';
+import '../../../widgets/custom_app_bar.dart';
 
 class ParentEditMedication extends StatefulWidget {
   final String medicationId;
@@ -261,11 +261,27 @@ class _ParentEditMedicationState extends State<ParentEditMedication> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           if (_errorMessage != null)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 16.0),
-                              child: Text(
-                                _errorMessage!,
-                                style: const TextStyle(color: Colors.red),
+                            Container(
+                              margin: const EdgeInsets.only(bottom: 16.0),
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.red.shade50,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: Colors.red.shade200),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.error_outline,
+                                      color: Colors.red.shade700),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      _errorMessage!,
+                                      style:
+                                          TextStyle(color: Colors.red.shade700),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           Stack(
@@ -275,27 +291,37 @@ class _ParentEditMedicationState extends State<ParentEditMedication> {
                                 child: Container(
                                   alignment: Alignment.center,
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8),
+                                    borderRadius: BorderRadius.circular(16),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.05),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
                                   ),
                                   width: 300,
                                   height: 300,
-                                  child: InstaImageViewer(
-                                    child: Image.memory(
-                                      base64Decode(_photoUrlController.text),
-                                      fit: BoxFit.contain,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(16),
+                                    child: InstaImageViewer(
+                                      child: Image.memory(
+                                        base64Decode(_photoUrlController.text),
+                                        fit: BoxFit.contain,
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
                               Container(
                                 margin: const EdgeInsets.all(8),
-                                decoration: const BoxDecoration(
+                                decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                 ),
                                 child: IconButton(
                                   icon: const Icon(Icons.edit),
                                   onPressed: _pickImage,
-                                  color: Colors.blue,
+                                  color: Theme.of(context).primaryColor,
                                 ),
                               ),
                             ],
@@ -303,9 +329,26 @@ class _ParentEditMedicationState extends State<ParentEditMedication> {
                           const SizedBox(height: 32),
                           TextFormField(
                             controller: _medicationNameController,
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               labelText: 'Medication Name',
-                              border: OutlineInputBorder(),
+                              labelStyle: TextStyle(color: Colors.grey[600]),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide:
+                                    BorderSide(color: Colors.grey.shade300),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide:
+                                    BorderSide(color: Colors.grey.shade300),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                    color: Theme.of(context).primaryColor),
+                              ),
+                              filled: true,
+                              fillColor: Colors.grey.shade50,
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
@@ -317,9 +360,26 @@ class _ParentEditMedicationState extends State<ParentEditMedication> {
                           const SizedBox(height: 16),
                           TextFormField(
                             controller: _dosageController,
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               labelText: 'Dosage',
-                              border: OutlineInputBorder(),
+                              labelStyle: TextStyle(color: Colors.grey[600]),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide:
+                                    BorderSide(color: Colors.grey.shade300),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide:
+                                    BorderSide(color: Colors.grey.shade300),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                    color: Theme.of(context).primaryColor),
+                              ),
+                              filled: true,
+                              fillColor: Colors.grey.shade50,
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
@@ -331,9 +391,26 @@ class _ParentEditMedicationState extends State<ParentEditMedication> {
                           const SizedBox(height: 16),
                           TextFormField(
                             controller: _frequencyController,
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               labelText: 'Frequency',
-                              border: OutlineInputBorder(),
+                              labelStyle: TextStyle(color: Colors.grey[600]),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide:
+                                    BorderSide(color: Colors.grey.shade300),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide:
+                                    BorderSide(color: Colors.grey.shade300),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                    color: Theme.of(context).primaryColor),
+                              ),
+                              filled: true,
+                              fillColor: Colors.grey.shade50,
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
@@ -345,9 +422,26 @@ class _ParentEditMedicationState extends State<ParentEditMedication> {
                           const SizedBox(height: 16),
                           TextFormField(
                             controller: _instructionsController,
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               labelText: 'Instructions',
-                              border: OutlineInputBorder(),
+                              labelStyle: TextStyle(color: Colors.grey[600]),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide:
+                                    BorderSide(color: Colors.grey.shade300),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide:
+                                    BorderSide(color: Colors.grey.shade300),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                    color: Theme.of(context).primaryColor),
+                              ),
+                              filled: true,
+                              fillColor: Colors.grey.shade50,
                             ),
                             maxLines: 3,
                             validator: (value) {
@@ -360,14 +454,37 @@ class _ParentEditMedicationState extends State<ParentEditMedication> {
                           const SizedBox(height: 16),
                           DropdownButtonFormField<MedicationStatus>(
                             value: _status,
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               labelText: 'Status',
-                              border: OutlineInputBorder(),
+                              labelStyle: TextStyle(color: Colors.grey[600]),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide:
+                                    BorderSide(color: Colors.grey.shade300),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide:
+                                    BorderSide(color: Colors.grey.shade300),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                    color: Theme.of(context).primaryColor),
+                              ),
+                              filled: true,
+                              fillColor: Colors.grey.shade50,
                             ),
                             items: MedicationStatus.values.map((status) {
                               return DropdownMenuItem(
                                 value: status,
-                                child: Text(status.toString().split('.').last),
+                                child: Text(
+                                  status.toString().split('.').last,
+                                  style: TextStyle(
+                                    color: Colors.grey[800],
+                                    fontSize: 16,
+                                  ),
+                                ),
                               );
                             }).toList(),
                             onChanged: (value) {
@@ -378,23 +495,45 @@ class _ParentEditMedicationState extends State<ParentEditMedication> {
                               }
                             },
                           ),
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 32),
                           ElevatedButton(
                             onPressed: _isLoading ? null : _saveMedication,
                             style: ElevatedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 0,
+                              backgroundColor: Theme.of(context).primaryColor,
+                              foregroundColor: Colors.white,
                             ),
-                            child: const Text('Save Changes'),
+                            child: Text(
+                              'Save Changes',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ),
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 16),
                           ElevatedButton(
                             onPressed: _isLoading ? null : _deleteMedication,
                             style: ElevatedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 16),
-                              backgroundColor: Colors.red,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 0,
+                              backgroundColor: Colors.red.shade50,
+                              foregroundColor: Colors.red.shade700,
                             ),
-                            child: const Text('Delete Medication',
-                                style: TextStyle(color: Colors.white)),
+                            child: Text(
+                              'Delete Medication',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ),
                           const SizedBox(height: 24),
                         ],
